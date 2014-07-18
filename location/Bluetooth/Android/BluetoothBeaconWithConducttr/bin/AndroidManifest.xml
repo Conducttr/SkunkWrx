@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.conducttr.bluetoothbeacon">
+    <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <application android:allowBackup="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppTheme">
+        <activity android:label="@string/app_name" android:name="com.conducttr.bluetoothbeacon.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity> 
+        <activity android:name="com.conducttr.bluetoothbeacon.RangingActivity"/>
+    <service android:enabled="true" android:exported="true" android:isolatedProcess="false" android:label="iBeacon" android:name="com.radiusnetworks.ibeacon.service.IBeaconService">
+    </service>
+
+    <service android:enabled="true" android:name="com.radiusnetworks.ibeacon.IBeaconIntentProcessor">
+    </service>
+               
+    </application>
+</manifest>

@@ -1,0 +1,12 @@
+<script>
+	window.onload = function() {
+		var form = document.getElementsByName("conducttr_signup")[0];
+		form.onsubmit = function(){
+			var successURL = document.getElementsByName('redirect')[0];
+			var audience_phone = document.getElementById('conducttr-acc-phone-number');
+			var res = audience_phone.value.slice(1);
+			res = res.replace(/\s/g, "");
+			successURL.value  = successURL.value + "?audience_phone=" + res ;  		
+		};
+	};	
+</script>
