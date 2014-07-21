@@ -9,9 +9,9 @@ public class Constants {
 	/*------------------------------- Edit the information below ------------------------*/        
 
 	/* Conducttr Configuration */
-    public String CONDUCTTR_CONSUMER_KEY = "6f24dc98bba64107e0aba8c6c99eefa6053be6919";
-    public String CONDUCTTR_CONSUMER_SECRET = "ed745694033a19a41fa11b01776ff56f";
-    public String CONDUCTTR_PROJECT_ID = "1757";
+    public String CONDUCTTR_CONSUMER_KEY = "MY_CONDUCTTR_CONSUMER_KEY";
+    public String CONDUCTTR_CONSUMER_SECRET = "MY_CONDUCTTR_CONSUMER_SECRET";
+    public String CONDUCTTR_PROJECT_ID = "MY_CONDUCTTR_PROJECT_ID";
   
     /*Number of samples */
     public int COUNT = 5 ;
