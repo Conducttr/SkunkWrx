@@ -75,6 +75,7 @@ This code allows
 					ACTUAL_VIDEO = VIDEO_JOURNEY[ACTUAL_VIDEO][1];
 					player.loadVideoById(VIDEOS[ACTUAL_VIDEO]);
 					reset_NextVideo();
+					console.log("Next Video by default: " + ACTUAL_VIDEO + " - ID: " + VIDEOS[ACTUAL_VIDEO] );
 				}
 			}
 	
@@ -121,6 +122,8 @@ This code allows
 							var nextvideo_id = VIDEOS[nextvideo];
 							player.loadVideoById(nextvideo_id); 
 							ACTUAL_VIDEO=nextvideo; 
+							console.log("Next Video by Conducttr Call: " + nextvideo + " - ID: " + nextvideo_id  );
+							reset_NextVideo();
 						}
 					}
 				});  
