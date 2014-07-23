@@ -90,6 +90,7 @@ This code allows
 							var seconds = TELL_CONDUCTTR_IM_HERE[i][1];
 							if (currentTime==seconds){ 
 								conducttr_call (TELL_CONDUCTTR_IM_HERE[i][2]);
+								console.log("Calling Conducttr - Video: " + TELL_CONDUCTTR_IM_HERE[i][0] + " - time: " + TELL_CONDUCTTR_IM_HERE[i][1] + "seconds - matchphrase: " + TELL_CONDUCTTR_IM_HERE[i][2]);
 							}
 						}
 					}
