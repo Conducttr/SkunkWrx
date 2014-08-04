@@ -5,13 +5,19 @@
     android:keepScreenOn="true"
     tools:context=".RangingActivity" >
 
-
+<TextView
+        android:id="@+id/request"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginLeft="5dip"/>
  <TextView
         android:id="@+id/response"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:text="" />
+        android:layout_below="@+id/request" 
+        android:layout_marginLeft="5dip"/>
  
     <ListView
         android:id="@+id/list"

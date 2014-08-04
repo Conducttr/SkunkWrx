@@ -106,12 +106,14 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 		        			iBeacon1_last_accuracy = myIBeacon.getAccuracy();
 		        		}
 		        		*/	   			
-		        		myIBeaconInfo.iBeacon_proximity+= iBeacon.getProximity();  	
+		        		myIBeaconInfo.iBeacon_proximity_sum+= iBeacon.getProximity();  	
+		        		myIBeaconInfo.iBeacon_proximity = iBeacon.getProximity();  	
+
 		        		myIBeaconInfo.iBeacon_accuracy = iBeacon.getAccuracy();
 		        		
 	        			if (myIBeaconInfo.iBeacon_count>=myConstants.COUNT){
-		        			myIBeaconInfo.iBeacon_proximity=myIBeaconInfo.iBeacon_proximity/myConstants.COUNT;
-		        			myIBeaconInfo.parsediBeacon_proximity = (int)myIBeaconInfo.iBeacon_proximity;
+		        			myIBeaconInfo.iBeacon_proximity_sum=myIBeaconInfo.iBeacon_proximity_sum/myConstants.COUNT;
+		        			myIBeaconInfo.parsediBeacon_proximity = (int)myIBeaconInfo.iBeacon_proximity_sum;
 	            			
 		        			if (myIBeaconInfo.parsediBeacon_proximity != myIBeaconInfo.iBeacon_last_proximity && myIBeaconInfo.iBeacon_last_proximity!= 0){
 		        				
@@ -130,14 +132,14 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 		        				//String matchphrase2 = index +"from"  + Integer.toString(myIBeaconInfo.iBeacon_last_proximity) + "to" + Integer.toString(myIBeaconInfo.parsediBeacon_proximity);
 		        				AsyncTaskRunner runner = new AsyncTaskRunner();
 	                			
-		        				logToiBeacon("Calling ...");
-	                	    	runner.execute(matchphrase2);
+		        				logToRequest("Calling Conducttr - " + matchphrase2);
+		        				runner.execute(matchphrase2);
 	                			myIBeaconInfo.iBeacon_last_proximity = myIBeaconInfo.parsediBeacon_proximity ;
 		        			}
 		        			else if( myIBeaconInfo.iBeacon_last_proximity == 0){
 	                	    	myIBeaconInfo.iBeacon_last_proximity = myIBeaconInfo.parsediBeacon_proximity ;
 		        			}
-		        			myIBeaconInfo.iBeacon_proximity = 0;
+		        			myIBeaconInfo.iBeacon_proximity_sum = 0;
 		        			myIBeaconInfo.iBeacon_count = 0;
 	            		}	
 		        		myIBeaconInfo.iBeacon_count++;
@@ -156,12 +158,21 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
         } catch (RemoteException e) {   }
     }			
    
-    private void logToiBeacon (final String line) {
+    private void logToResponse (final String line) {
     	runOnUiThread(new Runnable() {
     	    public void run() {
-    	    	TextView TextView3 = (TextView)RangingActivity.this
+    	    	TextView response = (TextView)RangingActivity.this
     					.findViewById(R.id.response);
-    	    	TextView3.setText(line);            	
+    	    	response.setText(line);            	
+    	    }
+    	});
+    }
+    private void logToRequest (final String line) {
+    	runOnUiThread(new Runnable() {
+    	    public void run() {
+    	    	TextView request = (TextView)RangingActivity.this
+    					.findViewById(R.id.request);
+    	    	request.setText(line);            	
     	    }
     	});
     }
@@ -196,13 +207,13 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
                 while ((responeLine = bufferedReader.readLine()) != null) {
                     responseBuilder.append(responeLine);
                 }
-                logToiBeacon("Response: " + responseBuilder.toString());
+                logToResponse("Response: " + responseBuilder.toString());
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
 				resp = e.getMessage();
-                logToiBeacon(resp);
+				logToResponse(resp);
 			}
 			return resp;
 		}
@@ -236,19 +247,30 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 			TextView beacon_minor = (TextView) convertView.findViewById(R.id.BEACON_minor);
 			TextView beacon_accuracy = (TextView) convertView.findViewById(R.id.BEACON_accuracy);
 			TextView beacon_count = (TextView) convertView.findViewById(R.id.BEACON_count);
-			TextView beacon_actual_proximity = (TextView) convertView.findViewById(R.id.BEACON_actual_proximity);
-			TextView beacon_average_proximity = (TextView) convertView.findViewById(R.id.BEACON_average_proximity);
+			TextView beacon_current_proximity = (TextView) convertView.findViewById(R.id.BEACON_current_proximity);
 			TextView beacon_last_proximity = (TextView) convertView.findViewById(R.id.BEACON_last_proximity);
 
 			beacon_uuid.setText("UUID: " + myList.get(position).getUUID());
 			beacon_major.setText("Major: " + myList.get(position).getMajor());
 			beacon_minor.setText(", Minor: " + myList.get(position).getMinor());
-			beacon_accuracy.setText("Distance" + myList.get(position).iBeacon_accuracy);
+			beacon_accuracy.setText("Distance: " + String.format("%.02f", myList.get(position).iBeacon_accuracy) + " meters");
 			beacon_count.setText("Count: " + myList.get(position).iBeacon_count);
-			beacon_actual_proximity.setText("Actual Proximity: " + myList.get(position).iBeacon_proximity);
-			beacon_average_proximity.setText("Average Proximity: " + myList.get(position).iBeacon_proximity/(myList.get(position).iBeacon_count - 1));
-			beacon_last_proximity.setText("Last Proximity: " + myList.get(position).iBeacon_last_proximity);
-            return convertView;
+			
+			String actual = "";
+			if (myList.get(position).iBeacon_proximity == 1) actual = "INMEDIATE";
+			else if (myList.get(position).iBeacon_proximity == 2) actual = "NEAR";
+			else if (myList.get(position).iBeacon_proximity == 3) actual = "FAR";
+			beacon_current_proximity.setText("Current: " + actual);
+			
+
+			String last = "";
+			if (myList.get(position).iBeacon_last_proximity == 1) last = "INMEDIATE";
+			else if (myList.get(position).iBeacon_last_proximity == 2) last = "NEAR";
+			else if (myList.get(position).iBeacon_last_proximity == 3) last = "FAR";
+			
+			beacon_last_proximity.setText(" Last: " + last );
+           
+			return convertView;
         }
     }
 

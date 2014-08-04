@@ -7,6 +7,8 @@ public class IBeaconInfo  {
   
     public double iBeacon_accuracy;
     public double iBeacon_proximity;
+    public double iBeacon_proximity_sum;
+
     public int iBeacon_last_proximity;
     public int iBeacon_count;
     public int parsediBeacon_proximity;
@@ -16,6 +18,7 @@ public class IBeaconInfo  {
     	Major= major;
     	Minor= minor;
     	iBeacon_proximity=0;
+    	iBeacon_proximity_sum=0;
     	iBeacon_last_proximity=0;
     	iBeacon_count=1;
     	parsediBeacon_proximity=0;

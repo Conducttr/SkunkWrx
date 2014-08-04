@@ -38,9 +38,8 @@ public class MainActivity extends Activity {
 	Button login,reset ;
 	CheckBox remember;
 	SharedPreferences preferences ;
-	String PREFS_NAME = "com.conducttr.ibeaconwithconducttr";
 	Constants myConstants = new Constants();
-
+	String PREFS_NAME = "com.conducttr.bluetoothbeacon";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +54,8 @@ public class MainActivity extends Activity {
 		verifyBluetooth();
 		TelephonyManager tMgr =(TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
 		audience_phone.setText(tMgr.getLine1Number());
-		preferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		preferences = getSharedPreferences(myConstants.PREFS_NAME, Context.MODE_PRIVATE);
+
 		if (preferences.getString("logged", "").toString().equals("logged")) 
 		{
 			Intent i = new Intent(MainActivity.this,RangingActivity.class);

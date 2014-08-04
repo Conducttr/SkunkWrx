@@ -14,7 +14,6 @@
         android:layout_marginLeft="10dip"
         android:gravity="left|top" >
     </TextView>
-
     <TextView
         android:id="@+id/BEACON_major"
         android:layout_width="wrap_content"
@@ -40,7 +39,7 @@
         android:id="@+id/BEACON_accuracy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/BEACON_minor"
+        android:layout_below="@+id/BEACON_major"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="5dp"
         android:gravity="left|top" >
@@ -53,31 +52,35 @@
         android:layout_marginLeft="10dip"
         android:layout_marginTop="5dp"
         android:gravity="left|top" >
-    </TextView>   
+    </TextView>  
+    
     <TextView
-        android:id="@+id/BEACON_actual_proximity"
+        android:id="@+id/proximity_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/BEACON_count"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="5dp"
-        android:gravity="left|top" >
-    </TextView>    
-      <TextView
-        android:id="@+id/BEACON_average_proximity"
+        android:gravity="left|top" 
+        android:text="Proximity: ">
+    </TextView>
+    <TextView
+        android:id="@+id/BEACON_current_proximity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/BEACON_actual_proximity"
+        android:layout_below="@+id/proximity_label"
         android:layout_marginLeft="10dip"
         android:layout_marginTop="5dp"
         android:gravity="left|top" >
     </TextView>    
+     
     <TextView
         android:id="@+id/BEACON_last_proximity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/BEACON_average_proximity"
+        android:layout_below="@+id/proximity_label"
         android:layout_marginLeft="10dip"
+        android:layout_toRightOf="@+id/BEACON_current_proximity"
         android:layout_marginTop="5dp"
         android:gravity="left|top" >
     </TextView>

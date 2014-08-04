@@ -24,7 +24,7 @@ public class Constants {
 	public String CONDUCTTR_REQUEST_URL = "https://my.conducttr.com/oauth/request-token";
     public String CONDUCTTR_AUTHORIZE_URL = "https://my.conducttr.com/oauth/authorize";
     public String CONDUCTTR_ACCESS_URL = "https://my.conducttr.com/oauth/access-token";
-    public String PREFS_NAME = "com.conducttr.ibeaconwithconducttr";
+    public String PREFS_NAME = "com.conducttr.bluetoothbeacon";
 
 	public Constants (){
 		myList.add(IBeacon0);
