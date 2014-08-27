@@ -14,7 +14,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -36,7 +36,7 @@ import com.radiusnetworks.ibeacon.Region;
 
 
 
-public class RangingActivity extends Activity implements IBeaconConsumer {
+public class RangingActivity extends ListActivity implements IBeaconConsumer {
 
 	protected static final String TAG = "RangingActivity";
 	private ListView list = null;
@@ -54,17 +54,14 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ranging);	
 		
-		myList = myConstants.myList;
-		list = (ListView) findViewById(R.id.list); 
-		
 		adapter = new MyBaseAdapter(this, myList);
-		list.setAdapter(adapter);
-	   
+	   	setListAdapter(adapter);
+		
 		iBeaconManager.bind(this);	
 	    verifyBluetooth();
 		preferences = getSharedPreferences(myConstants.PREFS_NAME, Context.MODE_PRIVATE);
 
-        audience_phone = getIntent().getExtras().getString("audience_phone");
+        audience_phone = preferences.getString("audience_phone","0");
 		audience_phone = audience_phone.trim();
 		myList.clear();
 	}
@@ -84,13 +81,11 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
     	super.onResume();
     	if (iBeaconManager.isBound(this)) iBeaconManager.setBackgroundMode(this, false);    		
     }
-
     @Override
     public void onIBeaconServiceConnect() {
         iBeaconManager.setRangeNotifier(new RangeNotifier() {
 	        @Override 
 	        public void didRangeBeaconsInRegion(Collection<IBeacon> iBeacons, Region region) {
-	   
 	        	if (iBeacons.size() > 0) {
 		        	for (IBeacon iBeacon: iBeacons) {
 		        		int index = getIndexByUUID(iBeacon.getProximityUuid());
@@ -100,23 +95,13 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 			        		index = getIndexByUUID(iBeacon.getProximityUuid());
 		        		}
 		        		IBeaconInfo myIBeaconInfo = myList.get(index);
-
-		        		/* Discard to far away results
-		        		if  (myIBeaconInfo.iBeacon_last_accuracy > iBeacon.getAccuracy()+2 ) || (myIBeaconInfo.iBeacon_last_accuracy < iBeacon.getAccuracy()-2 ){
-		        			iBeacon1_last_accuracy = myIBeacon.getAccuracy();
-		        		}
-		        		*/	   			
 		        		myIBeaconInfo.iBeacon_proximity_sum+= iBeacon.getProximity();  	
 		        		myIBeaconInfo.iBeacon_proximity = iBeacon.getProximity();  	
-
 		        		myIBeaconInfo.iBeacon_accuracy = iBeacon.getAccuracy();
-		        		
 	        			if (myIBeaconInfo.iBeacon_count>=myConstants.COUNT){
 		        			myIBeaconInfo.iBeacon_proximity_sum=myIBeaconInfo.iBeacon_proximity_sum/myConstants.COUNT;
-		        			myIBeaconInfo.parsediBeacon_proximity = (int)myIBeaconInfo.iBeacon_proximity_sum;
-	            			
+		        			myIBeaconInfo.parsediBeacon_proximity = (int)myIBeaconInfo.iBeacon_proximity_sum;	
 		        			if (myIBeaconInfo.parsediBeacon_proximity != myIBeaconInfo.iBeacon_last_proximity && myIBeaconInfo.iBeacon_last_proximity!= 0){
-		        				
 		        				String last = "";
 		        				if (myIBeaconInfo.iBeacon_last_proximity == 1) last = "INMEDIATE";
 		        				else if (myIBeaconInfo.iBeacon_last_proximity == 2) last = "NEAR";
@@ -129,7 +114,6 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
 		        				
 		        				String matchphrase2 = myIBeaconInfo.getUUID() + "-" + myIBeaconInfo.getMajor() + "-"  + myIBeaconInfo.getMinor() +"-from-"  + last + "-to-" + actual;
 	                	    	
-		        				//String matchphrase2 = index +"from"  + Integer.toString(myIBeaconInfo.iBeacon_last_proximity) + "to" + Integer.toString(myIBeaconInfo.parsediBeacon_proximity);
 		        				AsyncTaskRunner runner = new AsyncTaskRunner();
 	                			
 		        				logToRequest("Calling Conducttr - " + matchphrase2);
@@ -176,6 +160,7 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
     	    }
     	});
     }
+    
     private class AsyncTaskRunner extends AsyncTask<String, String, String>
 	{
     	private CommonsHttpOAuthProvider provider;
@@ -183,10 +168,8 @@ public class RangingActivity extends Activity implements IBeaconConsumer {
     	private String	resp;
 
 		@Override
-		protected String doInBackground(String... params)
-		{
-			try
-			{
+		protected String doInBackground(String... params){
+			try{
 		        this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
 		        		myConstants.CONDUCTTR_CONSUMER_SECRET);
 				this.provider = new CommonsHttpOAuthProvider(
