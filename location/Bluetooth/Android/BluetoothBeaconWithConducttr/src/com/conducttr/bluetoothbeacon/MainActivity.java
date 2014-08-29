@@ -15,12 +15,12 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,22 +30,21 @@ import com.radiusnetworks.ibeacon.IBeaconManager;
 
 public class MainActivity extends Activity {
 	
-	EditText audience_phone ; 
-	Button login ;
-	SharedPreferences preferences ;
-	Constants myConstants = new Constants();
+	private EditText audience_phone; 
+	private Button login;
+	private SharedPreferences preferences ;
+	private Constants myConstants = new Constants();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	
 		audience_phone = (EditText)findViewById(R.id.editText2);
 		login = (Button)findViewById(R.id.button1);
 		
 		verifyBluetooth();
 		
-		preferences = getSharedPreferences(myConstants.PREFS_NAME, Context.MODE_PRIVATE);
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		audience_phone.setText(preferences.getString("audience_phone",""));
 
 		if (preferences.getString("logged", "").toString().equals("logged")) {
@@ -56,7 +55,10 @@ public class MainActivity extends Activity {
 		login.setOnClickListener(new View.OnClickListener() {
 			
 			public void onClick(View arg0) {
-				if (!audience_phone.getText().equals("")){
+				if (audience_phone.getText().toString().equals("")){
+					Toast.makeText(MainActivity.this,"Please fill the field.", Toast.LENGTH_SHORT).show();
+				}
+				else{
 					SharedPreferences.Editor editor = preferences.edit();
 					editor.putString("audience_phone", audience_phone.getText().toString());
 					editor.putString("logged", "logged");
@@ -66,22 +68,17 @@ public class MainActivity extends Activity {
 					i.putExtra("audience_phone", audience_phone.getText().toString());
 					AsyncTaskRunner runner = new AsyncTaskRunner();
         			runner.execute();
-					startActivity(i);						
-				}
-				else{
-					Toast.makeText(MainActivity.this,"Please fill the field.", Toast.LENGTH_SHORT).show();
+					startActivity(i);	
 				}
 			}
 		});
 	}
-	
 	@Override 
     protected void onResume() {
     	super.onResume();
     	verifyBluetooth();
     }
-    private class AsyncTaskRunner extends AsyncTask<String, String, String>
-	{
+    private class AsyncTaskRunner extends AsyncTask<String, String, String>{
     	private CommonsHttpOAuthProvider provider;
     	private CommonsHttpOAuthConsumer consumer;
     	  
@@ -148,8 +145,7 @@ public class MainActivity extends Activity {
 				public void onDismiss(DialogInterface dialog) {
 					finish();
 		            System.exit(0);					
-				}
-				
+				}	
 			});
 			builder.show();
 		}

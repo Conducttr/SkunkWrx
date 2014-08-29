@@ -16,16 +16,17 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.radiusnetworks.ibeacon.IBeacon;
@@ -39,7 +40,6 @@ import com.radiusnetworks.ibeacon.Region;
 public class RangingActivity extends ListActivity implements IBeaconConsumer {
 
 	protected static final String TAG = "RangingActivity";
-	private ListView list = null;
 	private ArrayList<IBeaconInfo> myList = new ArrayList<IBeaconInfo>();
 	private MyBaseAdapter adapter;
     private IBeaconManager iBeaconManager = IBeaconManager.getInstanceForApplication(this);
@@ -56,14 +56,22 @@ public class RangingActivity extends ListActivity implements IBeaconConsumer {
 		
 		adapter = new MyBaseAdapter(this, myList);
 	   	setListAdapter(adapter);
-		
+
 		iBeaconManager.bind(this);	
 	    verifyBluetooth();
-		preferences = getSharedPreferences(myConstants.PREFS_NAME, Context.MODE_PRIVATE);
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        audience_phone = preferences.getString("audience_phone","0");
+        audience_phone = preferences.getString("audience_phone","");
 		audience_phone = audience_phone.trim();
-		myList.clear();
+		
+		if (audience_phone.equals("")){
+ 			Intent i = new Intent(RangingActivity.this,MainActivity.class);
+ 			preferences = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putString("logged", "");
+			editor.commit();
+ 			startActivity(i);	
+ 		}
 	}
 
     @Override 
