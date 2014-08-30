@@ -57,8 +57,8 @@ class Conducttr_API {
 	function set_NextVideo($video,$phone){
 		$params = array(':nextvideo' => $video ,':audience_phone' => $phone);
 		$st = $this->db->prepare('UPDATE audience SET nextvideo = :nextvideo WHERE audience_phone = :audience_phone');
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 
@@ -67,7 +67,8 @@ class Conducttr_API {
 		$params = array(':audience_phone' => $phone);
 		$st = $this->db->prepare('UPDATE audience SET nextvideo = 0 WHERE audience_phone = :audience_phone');
 		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 	
@@ -85,8 +86,8 @@ class Conducttr_API {
 		$params = array(':audience_phone' => $phone);
 		$st = $this->db->prepare('INSERT INTO audience (audience_phone) VALUES (:audience_phone)');
 		
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 		
 		return $result;
 	}
 	
@@ -94,8 +95,8 @@ class Conducttr_API {
 
 		$params = array(':audience_phone' => $phone);
 		$st = $this->db->prepare('DELETE FROM audience WHERE audience_phone = :audience_phone');
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 	
@@ -208,12 +209,11 @@ class Conducttr_API {
 		$params = array(':videos' => $videos_string, ':video_journey' => $video_journey_string, ':tell_conducttr_im_here' => $tell_conducttr_im_here_string, 'video_width' => $video_width, 'video_height' => $video_height );
 
 		$st = $this->db->prepare("UPDATE videos SET videos = :videos, video_journey = :video_journey, tell_conducttr_im_here = :tell_conducttr_im_here, video_width = :video_width, video_height = :video_height  WHERE id = '1' ");
-
-		$st->execute($params);
 		
 		
-		$result = array("response" => "OK"); 
-		return $result;
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
+		return $result;		
 		
 	}
 	function get_setup(){
@@ -236,8 +236,8 @@ class Conducttr_API {
 		
 		$st = $this->db->prepare("UPDATE videos SET videos = :videos WHERE id = '1' ");
 
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 
 	}
@@ -252,8 +252,8 @@ class Conducttr_API {
 		
 		$st = $this->db->prepare("UPDATE videos SET video_journey = :video_journey WHERE id = '1' ");
 
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 	function set_triggers (){
@@ -266,8 +266,8 @@ class Conducttr_API {
 		
 		$st = $this->db->prepare("UPDATE videos SET tell_conducttr_im_here = :tell_conducttr_im_here WHERE id = '1' ");
 
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 	function set_video_size (){
@@ -282,8 +282,8 @@ class Conducttr_API {
 		
 		$st = $this->db->prepare("UPDATE videos SET video_width = :video_width, video_height = :video_height WHERE id = '1' ");
 
-		$st->execute($params);
-		$result = array("response" => "OK"); 
+		if($st->execute($params))$result = array("response" => "OK"); 
+		else $result = array("response" => "ERROR"); 
 		return $result;
 	}
 	function get_videos(){
