@@ -111,12 +111,12 @@ public class RangingActivity extends ListActivity implements IBeaconConsumer {
 		        			myIBeaconInfo.parsediBeacon_proximity = (int)myIBeaconInfo.iBeacon_proximity_sum;	
 		        			if (myIBeaconInfo.parsediBeacon_proximity != myIBeaconInfo.iBeacon_last_proximity && myIBeaconInfo.iBeacon_last_proximity!= 0){
 		        				String last = "";
-		        				if (myIBeaconInfo.iBeacon_last_proximity == 1) last = "INMEDIATE";
+		        				if (myIBeaconInfo.iBeacon_last_proximity == 1) last = "IMMEDIATE";
 		        				else if (myIBeaconInfo.iBeacon_last_proximity == 2) last = "NEAR";
 		        				else if (myIBeaconInfo.iBeacon_last_proximity == 3) last = "FAR";
 
 		        				String actual = "";
-		        				if (myIBeaconInfo.parsediBeacon_proximity == 1) actual = "INMEDIATE";
+		        				if (myIBeaconInfo.parsediBeacon_proximity == 1) actual = "IMMEDIATE";
 		        				else if (myIBeaconInfo.parsediBeacon_proximity == 2) actual = "NEAR";
 		        				else if (myIBeaconInfo.parsediBeacon_proximity == 3) actual = "FAR";
 		        				
@@ -248,14 +248,14 @@ public class RangingActivity extends ListActivity implements IBeaconConsumer {
 			beacon_count.setText("Count: " + myList.get(position).iBeacon_count);
 			
 			String actual = "";
-			if (myList.get(position).iBeacon_proximity == 1) actual = "INMEDIATE";
+			if (myList.get(position).iBeacon_proximity == 1) actual = "IMMEDIATE";
 			else if (myList.get(position).iBeacon_proximity == 2) actual = "NEAR";
 			else if (myList.get(position).iBeacon_proximity == 3) actual = "FAR";
 			beacon_current_proximity.setText("Current: " + actual);
 			
 
 			String last = "";
-			if (myList.get(position).iBeacon_last_proximity == 1) last = "INMEDIATE";
+			if (myList.get(position).iBeacon_last_proximity == 1) last = "IMMEDIATE";
 			else if (myList.get(position).iBeacon_last_proximity == 2) last = "NEAR";
 			else if (myList.get(position).iBeacon_last_proximity == 3) last = "FAR";
 			
