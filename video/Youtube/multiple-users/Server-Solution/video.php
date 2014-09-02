@@ -100,7 +100,7 @@ This code allows
 				}
 			},1000);
 
-			//FROM THE VIDEO TO CONDUCTTR Trigger - via API for Oauth Call	
+			//API CALL to  CONDUCTTR  	
 			function conducttr_call(matchphrase){
 				$.ajax({  
 					type: "GET",  
@@ -109,7 +109,7 @@ This code allows
 					dataType: "json"
 				});  	
 			}; 
-			//INBOUND Trigger - Unauth API call to Conducttr
+			//GET the Next Video to be played
 			function get_NextVideo(){
 				$.ajax({  
 					type: "GET",  
@@ -129,7 +129,7 @@ This code allows
 				});  
 			}; 
 			
-			//Reset Audience - Unauth API call to Conducttr 
+			//Reset Next video to be played
 			function reset_NextVideo(){
 				$.ajax({  
 					type: "GET",  
@@ -138,7 +138,7 @@ This code allows
 					dataType: "json"
 				}); 
 			};
-			//Reset Audience - Unauth API call to Conducttr 
+			//GET the configuration parameters of the video player
 			function setup(){
 				$.ajax({  
 					type: "GET",  
