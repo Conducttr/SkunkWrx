@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".NFCActivity" >
+
+ <TextView
+     android:id="@+id/textView_explanation"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_above="@+id/imageView1"
+     android:layout_centerHorizontal="true"
+     android:layout_marginBottom="50dp"
+     android:gravity="center"
+     android:maxWidth="@android:dimen/thumbnail_width"
+     android:text="@string/explanation"
+     android:textColor="#ffffff"
+     android:textSize="17dp" />
+
+ <ImageView
+     android:id="@+id/imageView1"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_centerHorizontal="true"
+     android:layout_centerVertical="true"
+     android:src="@drawable/ic_launcher" />
+
+ <Button
+     android:id="@+id/button1"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentBottom="true"
+     android:layout_centerHorizontal="true"
+     android:layout_marginBottom="34dp"
+     android:text="Click to simulate NFC Tag scanned" />
+
+</RelativeLayout>

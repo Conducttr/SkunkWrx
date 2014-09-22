@@ -1,0 +1,75 @@
+body{
+	background-color:black;
+	color:white;
+	font-family: 'Montserrat';
+	/*font-family: 'Creepster';*/
+
+}
+#pre_login button{
+	font-family: 'Montserrat';
+	font-size:18px;
+	background: rgb(255, 255, 255); 
+    background: rgba(255, 255, 255, .35);
+	color:black;
+	width:300px;
+	height:300px;
+}
+#app{
+	display:none;
+}
+#widget_div{
+	visibility:hidden;
+	text-align: center;
+	display: table; 
+	margin: auto; 
+	position: absolute; 
+	left: 0; 
+	right: 0; 
+	top:0;
+	bottom:0;
+	width: 400px;
+}
+#back_button{
+	margin-top:150px;
+	display:none;
+	font-family: 'Montserrat';
+	font-size:18px;
+	background: rgb(255, 255, 255); 
+    background: rgba(255, 255, 255, .35);
+	color:black;
+	width:150px;
+
+}
+
+#issuu_reader span{
+	display:none;
+}
+#login_container{
+	text-align: center;
+	display: table; 
+	width: 800px; 
+	margin: auto; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	bottom: 0; 
+	right: 0; 
+}
+
+#container{
+	text-align: center;
+	display: table; 
+	margin: auto; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	bottom: 0; 
+	right: 0; 
+}
+#under_book{
+	font-size: 15px;
+	padding-right: 150PX;
+}
+#under_book a{
+	color:red;
+}

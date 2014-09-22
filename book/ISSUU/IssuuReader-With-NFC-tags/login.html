@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<script src="http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="voodoo.css" type="text/css" />
+	<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Creepster' rel='stylesheet' type='text/css'>
+	<script>
+		function proceed(index){
+			$('#pre_login').toggle();
+			if(index==1)$('#app').toggle();
+			else if(index==2) $('#widget_div').css("visibility","visible");
+			else {
+				$('#widget_div').css("visibility","hidden");
+				$('#app').hide();
+			}
+			$('#back_button').toggle();
+		}
+	</script>
+</head>
+
+<body>
+	<div id="login_container">
+		<div id="pre_login"> 
+			<button onClick="proceed(1)" style="float:left;	margin-left:80px;" > Proceed with Android app</button>
+			<button onClick="proceed(2)" style="float:right;margin-right:80px;"> Proceed without app</button>
+		</div>
+		<div id="app">
+			<span style="font-size:30px;">Write this code into the London Voodoo app</span><br>
+			<span id="unique" style="font-size:50px;font-family:Montserrat"> </span><br><br>
+			<span style="font-size:20px;font-family:Montserrat">To download the app, text #APP to +1-202-759-4790</span><br><br>
+		</div>
+		<div id="widget_div">
+			<!-- Begin Conducttr Widget -->
+			
+			
+			
+			
+			
+			
+			<!-- End Conducttr Widget -->
+		</div>
+		<button id="back_button" onClick="proceed(3)"> Back </button>
+	</div>
+	<script>
+	window.onload = function() {
+		//Random Code generator
+		function makeCode(){
+			var text = "";
+			var possible = "ABCDEFGHJKMNOPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz0123456789";
+			for( var i=0; i < 4; i++ )
+				text += possible.charAt(Math.floor(Math.random() * possible.length));
+			return text;
+		}
+	
+		var uniqid = makeCode();
+		document.getElementById("unique").innerHTML = uniqid; 
+		console.log("Uniqe_id: "+uniqid);
+
+		/* Conducttr api.php file path  - Edit this if you change the path of the api.php file */ 
+		var API_URL = "api.php";
+		
+		//Server side event - Waiting for Conducttr call (the Audience has logged in the App)
+		var sse = new EventSource(API_URL+'?action=synchronize&code='+uniqid);
+		sse.onmessage = function(e) {		
+			console.log(e.data);
+			sse.close();
+			var form = $('<form action="index.php" method="post" style="visibility:hidden">'+
+			  '<input type="text" name="audience_phone" value="' + e.data + '" />' +
+			  '</form>');
+			$('body').append(form); 
+			$(form).submit();
+		}	
+					
+		//Append the audience phone at the end of the redirection URL
+		var form = document.getElementsByName("conducttr_signup")[0];
+		form.onsubmit = function(){
+			var successURL = document.getElementsByName('redirect')[0];
+			var audience_phone = document.getElementById('conducttr-acc-phone-number');
+			var res = audience_phone.value.slice(1);
+			res = res.replace(/\s/g, "");
+			successURL.value  = successURL.value + "?audience_phone=" + res ;
+		};
+	};	
+	</script>
+
+</body>
+</html>
