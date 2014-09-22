@@ -73,7 +73,7 @@
 			$(form).submit();
 		}	
 					
-		//Append the audience phone at the end of the redirection URL
+		//Append the audience phone at the end of the redirection URL && Register the Audience in the Database
 		var form = document.getElementsByName("conducttr_signup")[0];
 		form.onsubmit = function(){
 			var successURL = document.getElementsByName('redirect')[0];
@@ -81,6 +81,12 @@
 			var res = audience_phone.value.slice(1);
 			res = res.replace(/\s/g, "");
 			successURL.value  = successURL.value + "?audience_phone=" + res ;
+			jQuery.ajax({  
+				type: "POST",  
+				url: API_URL,
+				data: {'action': "create_user", 'audience_phone': res},
+				dataType: "json"
+			});  
 		};
 	};	
 	</script>
