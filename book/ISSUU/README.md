@@ -21,3 +21,5 @@ The ISSUU Developers API [here](http://developers.issuu.com/api/)
 The PHP Oauth library is an open-source project and the original source can be found [here](https://code.google.com/p/oauth-php/)
 
 The SWFObject.js is an open-source project and the original source can be found [here](https://code.google.com/p/swfobject/)
+
+The NFC app is based on the example of Ralf Wondratschek. The original source can be found [here](http://code.tutsplus.com/tutorials/reading-nfc-tags-with-android--mobile-17278)
