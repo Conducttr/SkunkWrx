@@ -1,0 +1,45 @@
+<!-- Begin Conducttr Widget -->
+
+
+<!-- End Conducttr Widget -->
+
+
+
+<!-- END Conducctr Widget -->
+
+ 
+<!-- Begin Conducctr Widget addon -->
+<script>
+	window.onload = function() {
+		var form = document.getElementsByName("conducttr_signup")[0];
+		form.onsubmit = function(){
+			var successURL = document.getElementsByName('redirect')[0];
+			
+			var audience_email = document.getElementById('conducttr-acc-email');
+			var res1 = audience_email.value;
+			res1 = res1.replace(/\s/g, "");
+			
+			var audience_phone = document.getElementById('conducttr-acc-phone-number');
+			var res2 = audience_phone.value.slice(1);
+			res2 = res2.replace(/\s/g, "");
+			
+			successURL.value  = successURL.value + "?audience_phone=" + res2 ;
+			
+			//Conducttr_interactive_video_API URL  - Edit this if you change the path of the api.php file 
+			API_URL: "api.php",
+			
+			
+			//Insert User in Database
+			jQuery.ajax({  
+				type: "POST", 
+				url: API_URL,
+				data: {'action': "create_user", 'audience_phone': res2},
+				dataType: "json"
+				
+			});  
+			
+		};
+	};	
+	
+</script>
+<!-- End Conducctr Widget addon -->
