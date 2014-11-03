@@ -78,7 +78,6 @@ public class MainActivity extends Activity {
 	}
 	
     private class AsyncTaskRunner extends AsyncTask<String, String, String>{
-    	private CommonsHttpOAuthProvider provider;
     	private CommonsHttpOAuthConsumer consumer;
     	  
     	private String	resp;
@@ -90,12 +89,8 @@ public class MainActivity extends Activity {
 		        this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
 		        		myConstants.CONDUCTTR_CONSUMER_SECRET);
 
-				this.provider = new CommonsHttpOAuthProvider(
-		                myConstants.CONDUCTTR_REQUEST_URL,
-		                myConstants.CONDUCTTR_ACCESS_URL,
-		                myConstants.CONDUCTTR_AUTHORIZE_URL);
-				
-				
+				this.consumer.setTokenWithSecret(myConstants.CONDUCTTR_ACCESS_TOKEN, myConstants.CONDUCTTR_ACCESS_TOKEN_SECRET);	
+
 				String url = myConstants.CONDUCTTR_BASE_URL + myConstants.CONDUCTTR_PROJECT_ID + "/registration" ;
 
 				HttpPost request = new HttpPost(url);

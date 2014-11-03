@@ -200,13 +200,10 @@ public class NFCActivity extends Activity {
             NdefRecord[] records = ndefMessage.getRecords();
             for (NdefRecord ndefRecord : records) {
                 if (ndefRecord.getTnf() == NdefRecord.TNF_WELL_KNOWN && Arrays.equals(ndefRecord.getType(), NdefRecord.RTD_TEXT)) {
-                    this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
-    		        		myConstants.CONDUCTTR_CONSUMER_SECRET);
-    				this.provider = new CommonsHttpOAuthProvider(
-    						myConstants.CONDUCTTR_REQUEST_URL,
-    						myConstants.CONDUCTTR_ACCESS_URL,
-    						myConstants.CONDUCTTR_AUTHORIZE_URL);
                 	try {
+                		this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
+    		        		myConstants.CONDUCTTR_CONSUMER_SECRET);
+                		this.consumer.setTokenWithSecret(myConstants.CONDUCTTR_ACCESS_TOKEN, myConstants.CONDUCTTR_ACCESS_TOKEN_SECRET);	
                 		String tag_text = readText(ndefRecord);
                     	preferences = PreferenceManager.getDefaultSharedPreferences(NFCActivity.this);
                         audience_phone = preferences.getString("audience_phone","0");
@@ -295,20 +292,17 @@ public class NFCActivity extends Activity {
         }
     }
     private class FakeNdefReaderTask extends AsyncTask<String, String, String> {
-    	private CommonsHttpOAuthProvider provider;
     	private CommonsHttpOAuthConsumer consumer;
     	private String	resp; 
     	
         @Override
         protected String doInBackground(String... params) {
-        	
-            this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
-	        		myConstants.CONDUCTTR_CONSUMER_SECRET);
-			this.provider = new CommonsHttpOAuthProvider(
-					myConstants.CONDUCTTR_REQUEST_URL,
-					myConstants.CONDUCTTR_ACCESS_URL,
-					myConstants.CONDUCTTR_AUTHORIZE_URL);
         	try {
+        		this.consumer = new CommonsHttpOAuthConsumer(myConstants.CONDUCTTR_CONSUMER_KEY,
+	        		myConstants.CONDUCTTR_CONSUMER_SECRET);
+    			this.consumer.setTokenWithSecret(myConstants.CONDUCTTR_ACCESS_TOKEN, myConstants.CONDUCTTR_ACCESS_TOKEN_SECRET);	
+
+        	
         		String tag_text = "voodoocard";
             	preferences = PreferenceManager.getDefaultSharedPreferences(NFCActivity.this);
                 audience_phone = preferences.getString("audience_phone","0");
