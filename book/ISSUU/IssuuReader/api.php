@@ -25,17 +25,13 @@ define("MYSQL_ROOT_PASS", "MY_MYSQL_ROOT_PASS");
 
 define("CONDUCTTR_CONSUMER_KEY", "MY_CONDUCTTR_CONSUMER_KEY");
 define("CONDUCTTR_CONSUMER_SECRET", "MY_CONDUCTTR_CONSUMER_SECRET");
+define("CONDUCTTR_ACCESS_TOKEN", "MY_CONDUCTTR_ACCESS_TOKEN");
+define("CONDUCTTR_ACCESS_TOKEN_SECRET", "MY_CONDUCTTR_ACCESS_TOKEN_SECRET");
+
 define("CONDUCTTR_PROJECT_ID", "MY_CONDUCTTR_PROJECT_ID");
 
 
 /*------------------------------- Edit the information above ------------------------*/        
-
-/* DON'T MODIFY THIS */
-define("CONDUCTTR_OAUTH_HOST","https://my.conducttr.com/oauth/");
-define("CONDUCTTR_REQUEST_TOKEN_URL", CONDUCTTR_OAUTH_HOST . "request-token");
-define("CONDUCTTR_AUTHORIZE_URL", CONDUCTTR_OAUTH_HOST . "authorize");
-define("CONDUCTTR_ACCESS_TOKEN_URL", CONDUCTTR_OAUTH_HOST . "access-token");
-
 
 class Conducttr_API {
     private $db;
@@ -198,12 +194,17 @@ class Conducttr_API {
 		
 		$options = array('consumer_key' => CONDUCTTR_CONSUMER_KEY, 'consumer_secret' => CONDUCTTR_CONSUMER_SECRET);
 		OAuthStore::instance("2Leg", $options);
-		try
-		{
-			$request = new OAuthRequester(CONDUCTTR_REQUEST_TOKEN_URL, $method);
-			$result = $request->doRequest(0);
-			parse_str($result['body'], $params);
-			$request = new OAuthRequester($CONDUCTTR_REQUEST_URL, $method, $params);
+		try{
+			$secrets = array(
+				'signature_methods' => array('HMAC-SHA1'),
+				'token' => CONDUCTTR_ACCESS_TOKEN,
+				'token_secret' => CONDUCTTR_ACCESS_TOKEN_SECRET,
+				'nonce' => md5(md5(date('H:i:s')).md5(time())),
+				'timestamp' => time(),
+				'consumer_key' => CONDUCTTR_CONSUMER_KEY,
+				'consumer_secret' => CONDUCTTR_CONSUMER_SECRET
+			);
+			$request = new OAuthRequester($CONDUCTTR_REQUEST_URL, $method, $secrets);
 			$result = $request->doRequest();
 			return json_decode($result['body']);
 
