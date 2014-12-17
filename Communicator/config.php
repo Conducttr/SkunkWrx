@@ -1,0 +1,11 @@
+<?php
+
+/* MySQL DATABASE CONFIGURATION */
+
+define("MYSQL_DBHOST", "XXXXXXX");
+define("MYSQL_DBNAME", "XXXXXXX");
+define("MYSQL_USER", "XXXXXXX");
+define("MYSQL_PASS", "XXXXXXX");
+
+ 
+?>
