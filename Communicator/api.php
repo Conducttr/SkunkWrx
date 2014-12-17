@@ -2,11 +2,7 @@
 session_start();
 /* OAUTH Library  - Edit this if you change the path of the OAuth folder */ 
 include_once "Oauth/OAuthRequestSigner.php";
-
-define("MYSQL_DBHOST", "localhost");
-define("MYSQL_DBNAME", "communicator");
-define("MYSQL_USER", "communicator");
-define("MYSQL_PASS", "Eiglesias07");
+include_once "config.php";
 
 class Conducttr_API {
     private $db;
