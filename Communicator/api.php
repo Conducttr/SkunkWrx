@@ -171,7 +171,7 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-			'nonce' => md5(md5(date('H:i:s')).md5(time())),
+			'nonce' => $this->makeNonce(),
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 			'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -205,7 +205,8 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-				'nonce' => md5(md5(date('H:i:s')).md5(time())),
+				'nonce' => $this->makeNonce(),
+
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 				'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -302,7 +303,8 @@ class Conducttr_API {
 					'signature_methods' => array('HMAC-SHA1'),
 					'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 					'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-					'nonce' => md5(md5(date('H:i:s')).md5(time())),
+					'nonce' => $this->makeNonce(),
+
 					'timestamp' => time(),
 					'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 					'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -352,7 +354,8 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-				'nonce' => md5(md5(date('H:i:s')).md5(time())),
+				'nonce' => $this->makeNonce(),
+
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 				'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -396,7 +399,8 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-				'nonce' => md5(md5(date('H:i:s')).md5(time())),
+				'nonce' => $this->makeNonce(),
+
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 				'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -486,7 +490,8 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-			'nonce' => md5(md5(date('H:i:s')).md5(time())),
+			'nonce' => $this->makeNonce(),
+
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 			'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -525,7 +530,8 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-			'nonce' => md5(md5(date('H:i:s')).md5(time())),
+			'nonce' => $this->makeNonce(),
+
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 			'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -768,7 +774,8 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-			'nonce' => md5(md5(date('H:i:s')).md5(time())),
+			'nonce' => $this->makeNonce(),
+
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 			'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -814,7 +821,8 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-				'nonce' => md5(md5(date('H:i:s')).md5(time())),
+				'nonce' => $this->makeNonce(),
+
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 				'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -869,7 +877,8 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
-			'nonce' => md5(md5(date('H:i:s')).md5(time())),
+			'nonce' => $this->makeNonce(),
+
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
 			'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
@@ -915,6 +924,15 @@ class Conducttr_API {
 		$st->execute();
 		$icons=$st->fetchAll(PDO::FETCH_ASSOC);
 		return $icons;
+	}
+	function makeNonce() {
+		return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0xffff ),
+			mt_rand( 0, 0x0fff ) | 0x4000,
+			mt_rand( 0, 0x3fff ) | 0x8000,
+			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+		);
 	}
 }
 
