@@ -1036,7 +1036,7 @@ if (isset($_REQUEST["action"])){
 			break;	
 		case "login" : 
 			if ( isset($_REQUEST["audience_email"])&& isset($_REQUEST["password"]) && isset($_REQUEST["project_id"])) {
-				$value = $api->login(strtolower($_REQUEST["audience_email"]),md5($_REQUEST["password"]),$_REQUEST["project_id"]);
+				$value = $api->login(strtolower($_REQUEST["audience_email"]),$_REQUEST["password"],$_REQUEST["project_id"]);
 				//$value = array("Response"=>"TEST");
 				exit (json_encode($value));
 			}

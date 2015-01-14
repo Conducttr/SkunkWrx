@@ -1,0 +1,43 @@
+<script>
+window.onload = function() {
+	
+	/*------------------------------- Edit the information below ------------------------*/        
+
+	var CONDUCTTR_CONSUMER_KEY = "YOUR_CONDUCTTR_CONSUMER_KEY";
+	var CONDUCTTR_PROJECT_ID = "YOUR_CONDUCTTR_PROJECT_ID";
+	var CONDUCTTR_METHOD_NAME = "YOUR_CONDUCTTR_METHOD_NAME";
+	
+	/*------------------------------- Edit the information above ------------------------*/        
+
+	
+	var form = document.getElementsByName("conducttr_signup")[0];
+	form.onsubmit = function(){
+		var audience_email = document.getElementById('conducttr-acc-email').value;
+		//var audience_phone = document.getElementById('conducttr-acc-phone-number').value;
+		
+		/*------------------------------- Edit the information below ------------------------*/        
+
+		var attribute_integer = document.getElementById('attribute_integer').value;
+		var attribute_single_line = document.getElementById('attribute_single_line').value;
+		if (document.getElementById('option_true').checked) var attribute_boolean = 1;
+		else if (document.getElementById('option_false').checked) var attribute_boolean = 0;
+		else var attribute_boolean = null;
+		 
+		var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+		attribute_values+="&audience_email="+audience_email;
+		//attribute_values+="&audience_phone="+audience_phone;
+		attribute_values+="&integer="+attribute_integer;
+		attribute_values+="&single_line="+attribute_single_line;
+		attribute_values+="&boolean="+attribute_boolean;
+
+		/*------------------------------- Edit the information above ------------------------*/        
+
+		var xmlhttp;
+		if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+		else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+		xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		xmlhttp.send(attribute_values)	
+	};
+}; 
+</script>
