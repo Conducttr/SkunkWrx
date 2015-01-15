@@ -1,0 +1,74 @@
+<style>
+	#progressbar {
+		background-color: black;
+		border-radius: 13px; /* (height of inner div) / 2 + padding */
+		padding: 3px;
+	}
+	#bar {
+		background-color: orange;
+		height: 20px;
+		border-radius: 10px;
+		width:0%;
+	    -webkit-transition: width 1s linear 2s; /* For Safari 3.1 to 6.0 */
+		transition: width 1s linear 2s;
+	}
+	#progress_text{
+		text-align:center;
+	}
+</style>
+
+<div id="progressbar">
+  <div id="bar"></div>
+</div>
+<div id="progress_text"></div>
+
+<script>
+	
+	/*------------------------------- Edit the information below ------------------------*/        
+
+	/* Conducttr's API Consumer Key */
+	var CONDUCTTR_CONSUMER_KEY = "YOUR_CONDUCTTR_CONSUMER_KEY"; 
+	
+	/* Conducttr Project ID */ 
+	var CONDUCTTR_PROJECT_ID = "YOUR_CONDUCTTR_PROJECT_ID"; 
+	
+	/* Conducttr's API method name */
+	var CONDUCTTR_METHOD_NAME = "unauth/YOUR_CONDUCTTR_API_METHOD_NAME";
+	
+	/* The name of the attribute that works as upper limit to the progress bar */
+	var UPPER_LIMIT_ATTRIBUTE_NAME = "PROJECT_ATTRIBUTE_FOR_UPPER_LIMIT";
+	
+	/* The name of the attribute that works as value to the progress bar */
+	var COUNT_ATTRIBUTE_NAME = "PROJECT_ATTRIBUTE_FOR_COUNT";
+	
+	/*------------------------------- Edit the information above ------------------------*/        
+
+	window.onload = function() {
+		var upper_limit = 0;
+		var count = 0;
+		jsonp("https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/"+CONDUCTTR_METHOD_NAME+"?consumer_key="+CONDUCTTR_CONSUMER_KEY, function(data) {
+			for (var i = 0; i <= data.results.length - 1; i++ ){
+				for (var key in data.results[i]) {
+					if (data.results[i].hasOwnProperty(key)) {
+						if(key==UPPER_LIMIT_ATTRIBUTE_NAME) upper_limit = data.results[i][key];
+						else if (key==COUNT_ATTRIBUTE_NAME) count = data.results[i][key];
+					}
+				} 
+			}
+			var bar_width= ((count*100)/upper_limit);
+			document.getElementById("bar").style.width=bar_width+"%";	
+			document.getElementById("progress_text").innerHTML = bar_width+"%";	
+		});
+	};	
+	function jsonp(url, callback) {
+		var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+		window[callbackName] = function(data) {
+			delete window[callbackName];
+			document.body.removeChild(script);
+			callback(data);
+		};
+		var script = document.createElement('script');
+		script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+		document.body.appendChild(script);
+	}
+</script>
