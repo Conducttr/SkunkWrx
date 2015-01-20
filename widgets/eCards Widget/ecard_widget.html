@@ -1,0 +1,72 @@
+<div sytle="overflow:auto">	
+	<div sytle="overflow:auto">
+		From <input id="referrer_email" type="text" placeholder="Your email"/>
+		To <input id="referred_email" type="text" placeholder="Friend's email" />
+
+		<select id="ecard" >
+			<option value="ecard_1"> eCard 1 </option>
+			<option value="ecard_2"> eCard 2 </option>
+			<option value="ecard_3"> eCard 3 </option>
+			<option value="ecard_4"> eCard 4 </option>
+
+		</select>
+		<button onClick="eCard()">Submit</button>
+	</div>
+
+	<img src="ecards.jpg" />
+</div>
+<script>
+
+function eCard() {
+	
+	/*------------------------------- Edit the information below ------------------------*/        
+
+	var CONDUCTTR_CONSUMER_KEY = "YOUR_CONDUCTTR_CONSUMER_KEY";
+	var CONDUCTTR_PROJECT_ID = "YOUR_CONDUCTTR_PROJECT_ID";	
+	
+	/*------------------------------- Edit the information above ------------------------*/        
+
+	var referrer_email = document.getElementById('referrer_email').value;
+	var referred_email = document.getElementById('referred_email').value;
+	
+	
+	/*------------------------------- API Call to register the referrer ------------------------*/    
+	    
+	var CONDUCTTR_METHOD_NAME = "referrer";
+	var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+	attribute_values+="&audience_email="+referrer_email;
+	//attribute_values+="&ecard="+document.getElementById('ecard').value;
+
+	var xmlhttp;
+	if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+	else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+	xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.send(attribute_values);
+	
+	/*------------------------------- API Call to register the referred ------------------------*/        
+
+	var CONDUCTTR_METHOD_NAME = "referred";
+	var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+	attribute_values+="&audience_email="+referred_email;
+	attribute_values+="&ecard="+document.getElementById('ecard').value;
+	
+	var xmlhttp;
+	if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+	else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+	xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.send(attribute_values);
+	
+	/*------------------------------- API Call to send the ecard ------------------------*/        
+
+	var CONDUCTTR_METHOD_NAME = document.getElementById('ecard').value+"?consumer_key="+CONDUCTTR_CONSUMER_KEY+"&audience_email="+referred_email;
+	
+	var xmlhttp;
+	if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+	else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+	xmlhttp.open("GET", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+	xmlhttp.send();
+	
+}; 
+</script>
