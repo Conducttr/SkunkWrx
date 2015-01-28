@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Conducttr - Quiz widget </title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<meta name="description" content="" />
+		<link rel="stylesheet" type="text/css" href="quiz.css">
+	</head>
+	<body>
+		<div id="quiz_container">	
+			<h2>Conducttr's Quiz Widget </h2>
+			<h4>Write your email, answer the questions and click "Send!"</h4><br>
+			
+			<b>Your email</b><br><br>
+			<input id="audience_email" type="text" placeholder="Your email"/>
+			<br><br>
+			<hr>
+			<div class="question">
+				<div class="question_title">First question - with a numeric answer : </div>
+				<input type="number" name="attribute_integer" id="attribute_integer"  />
+			</div>	
+				
+			<div class="question">
+				<div class="question_title"> Second question - with an open text answer : </div>
+				<input type="text" name="attribute_single_line" id="attribute_single_line"  />
+			</div>	
+			
+			<div class="question">
+				<div class="question_title"> Third question - with a yes/no answer: </div>
+					<!--
+					<label>Boolean: </label>
+					<input type="radio" name="option" id="option_true" value="1">True
+					<input type="radio" name="option" id="option_false" value="0">False
+					-->
+				<div class="onoffswitch">
+					<input type="checkbox" id="attribute_boolean" name="attribute_boolean" class="onoffswitch-checkbox" value="1" >
+					<label class="onoffswitch-label" for="attribute_boolean">
+						<span class="onoffswitch-inner"></span>
+						<span class="onoffswitch-switch"></span>
+					</label>
+				</div>
+			</div>
+		
+			<div class="question">
+				<div class="question_title"> Fourth question - Multiple choice answer : </div>
+				<li>
+					<input type="radio" name="option" id="option_1" value="1" checked><label for="option_1" class="btn">Option 1 </label>
+				</li>
+				<li>
+					<input type="radio" name="option" id="option_2"  value="2"><label for="option_2" class="btn">Option 2 </label>
+				</li>
+				<li>
+					<input type="radio" name="option" id="option_3" value="3"><label for="option_3" class="btn">Option 3 </label>
+				</li>
+				<li>
+					<input type="radio" name="option" id="option_4"  value="4"><label for="option_4" class="btn">Option 4 </label>
+				</li>
+			</div>
+			<center><button onClick="sendQuiz();">Send</button></center>
+		</div>		
+		<div id="sent_message" style="display:none">
+			The quiz has been sent. Thank you for your participation!
+		</div>
+		
+	<script>
+		function sendQuiz() {
+			/*	
+			function check(){
+				if ( (document.getElementById('attribute_integer').value!="") && (document.getElementById('attribute_text').value!="") && (document.getElementById('option_true').checked || document.getElementById('option_false').checked)){
+					document.getElementsByName("conducttr_signup")[0].submit();;
+				}
+				else{
+					alert("Please fill all the fields");
+				}
+			}
+			*/
+
+			/*---------------------------- Edit the information below ------------------------*/        
+
+			var CONDUCTTR_CONSUMER_KEY = "YOUR_CONDUCTTR_CONSUMER_KEY";
+			var CONDUCTTR_PROJECT_ID = "YOUR_CONDUCTTR_PROJECT_ID";
+			var CONDUCTTR_METHOD_NAME = "quiz";
+			
+			/*----------------------------- Edit the information above ------------------------*/        
+
+			var audience_email = document.getElementById('audience_email').value;
+
+			/*--------------------------- API Call to register the referrer --------------------*/    
+			
+			
+			/*---------------------------- Edit the information below ------------------------*/        
+
+			var attribute_integer = document.getElementById('attribute_integer').value;
+			
+			var attribute_single_line = document.getElementById('attribute_single_line').value;
+			
+			if (document.getElementById('attribute_boolean').checked) var attribute_boolean = 1;
+			else var attribute_boolean = 0;
+			
+			var attribute_integer_2 = document.querySelector('input[name="option"]:checked').value;
+			
+					 
+			var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+			attribute_values+="&audience_email="+audience_email;
+			//attribute_values+="&audience_phone="+audience_phone;
+			attribute_values+="&attribute_integer="+attribute_integer;
+			attribute_values+="&attribute_single_line="+attribute_single_line;
+			attribute_values+="&attribute_boolean="+attribute_boolean;
+			attribute_values+="&attribute_integer_2="+attribute_integer_2;
+			
+			/*----------------------------- Edit the information above ------------------------*/        
+
+			var xmlhttp;
+			if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+			else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+			xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xmlhttp.send(attribute_values);
+			
+			//window.location.href = "http://YOUR-REDIRECTION-URL.com";
+
+			document.getElementById('quiz_container').style.display = 'none';
+			document.getElementById('sent_message').style.display = 'block';
+
+		}; 
+	</script>
+</body>
+</html>
