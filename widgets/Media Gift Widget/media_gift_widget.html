@@ -1,0 +1,170 @@
+<script>
+	window.onload=function(){
+		var download = document.getElementById('widget');
+		var submit = document.getElementById('submit_button');
+		var close = document.getElementById('close_button');
+
+
+		download.onclick=function(){			
+			document.getElementById("form").style.display = "block";
+			document.getElementById("download_banner").style.display = "none";
+			return false;
+		};
+		close.onclick=function(){			
+			document.getElementById("form").style.display = "none";
+			document.getElementById("download_banner").style.display = "block";
+			document.getElementById("success").style.visibility = "hidden";
+
+			return false;
+		};
+		submit.onclick=function(){	
+					
+			document.getElementById("success").style.visibility = "visible";
+
+			/*------------------------------- Edit the information below ------------------------*/        
+
+			var CONDUCTTR_CONSUMER_KEY = "YOUR_CONDUCTTR_CONSUMER_KEY";
+			var CONDUCTTR_PROJECT_ID = "YOUR_CONDUCTTR_PROJECT_ID";
+			
+			var CONDUCTTR_METHOD_NAME = "mediagift";
+
+			/*------------------------------- Edit the information above ------------------------*/        
+			
+			var audience_email = document.getElementById("audience_email").value;
+
+			var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+			attribute_values+="&audience_email="+audience_email;
+
+			var xmlhttp;
+			if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+			else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+			xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xmlhttp.send(attribute_values);
+			
+			return false;
+		};
+	};
+	 	
+</script>
+<style>
+	body{
+		background-color:#EEEEEE;
+	}
+	#widget{
+		background-color:#6086A5;
+		width:800px;
+		height:450px;
+		position:absolute;
+		top:0;
+		bottom:0;
+		right:0;
+		left:0;
+		margin:auto;
+		text-align:center;
+		font-family: "Gotham";
+		cursor:pointer;
+
+	}
+	#download_banner{
+		color:white;
+		height: 85px;
+		width:100%;
+		position:absolute;
+		bottom:0;
+		cursor:pointer;
+		font-size:34px;
+		/* Fallback for web browsers that don't support RGBa */
+		background-color: rgb(0, 0, 0);
+		/* RGBa with 0.6 opacity */
+		background-color: rgba(0, 0, 0, 0.6);
+		/* For IE 5.5 - 7*/
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+		/* For IE 8*/
+		-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+	}
+	input{
+		background-color: rgb(255,255,255);
+		padding:5px;
+		border-radius: 5px;
+		margin-right:5px;
+		
+		-webkit-box-shadow: inset 0px 12px 18px 0px #d8d8d8;
+		box-shadow: inset 0px 12px 18px 0px #d8d8d8;
+	}
+	
+	#submit_button{
+		padding: 5px;
+		border-radius: 5px;
+		background-color: rgb(255,255,255);
+		color: black;
+		border: 0;
+		-webkit-box-shadow: inset 0px 12px 18px 0px #d8d8d8;
+		box-shadow: inset 0px 12px 18px 0px #d8d8d8;
+	}
+	#close_button{
+		position:absolute;
+		top:0;
+		right:0;
+		background-color:transparent;
+		border:0;
+		color:white;
+		cursor:pointer;
+	}
+	#form{
+		display:none;
+		color:white;
+		width:800px;
+		height:450px;
+		/*height: 85px;*/
+		/*width:100%;*/
+		position:absolute;
+		top:0;
+		bottom:0;
+		left:0;
+		right:0;
+		margin:auto;
+		text-align: center;
+		/* Fallback for web browsers that don't support RGBa */
+		background-color: rgb(0, 0, 0);
+		/* RGBa with 0.6 opacity */
+		background-color: rgba(0, 0, 0, 0.6);
+		/* For IE 5.5 - 7*/
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+		/* For IE 8*/
+		-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+	
+	}
+	#widget{
+		background-image: url('email4media.png');
+		background-size: cover;
+	}
+	#success{
+		visibility:hidden;
+	}
+	.centered{
+		position:absolute;
+		bottom:0;
+		top:0;
+		left:0;
+		right:0;
+		margin:auto;
+		height:50px;
+		text-align: center;
+	}
+</style>
+
+<div id="widget">
+	<div id="download_banner">
+		<div class="centered">
+			Click to Download
+		</div>	
+	</div>
+</div>
+<div id="form">
+	<button id="close_button" >X</button>
+	<div class="centered">
+		<div id="success">Check your Inbox for the Download</div>
+		<input id="audience_email" type="email" placeholder="Enter Email Address"><button id="submit_button"> Submit</button>
+	</div>
+</div>
