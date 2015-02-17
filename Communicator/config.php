@@ -2,10 +2,10 @@
 
 /* MySQL DATABASE CONFIGURATION */
 
-define("MYSQL_DBHOST", "XXXXXXX");
-define("MYSQL_DBNAME", "XXXXXXX");
-define("MYSQL_USER", "XXXXXXX");
-define("MYSQL_PASS", "XXXXXXX");
+define("MYSQL_DBHOST", "MY_MYSQL_DBHOST");
+define("MYSQL_DBNAME", "MY_MYSQL_DBNAME");
+define("MYSQL_USER", "MY_MYSQL_USER");
+define("MYSQL_PASS", "MY_MYSQL_PASS");
 
  
 ?>

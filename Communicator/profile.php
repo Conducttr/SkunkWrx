@@ -56,8 +56,9 @@ else{
 				imagecopyresampled($tmp, $image, 0, 0, $x, 0, 120, 120, $w, $h);
 				switch ($_FILES['profileImage']['type']) {
 					case 'image/jpeg':
-					  imagejpeg($tmp, $newfilename, 100);
-					  break;
+						
+						imagejpeg($tmp, $newfilename, 100);
+						break;
 					case 'image/png':
 					  imagepng($tmp, $newfilename, 0);
 					  break;
@@ -108,6 +109,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';
@@ -181,7 +184,6 @@ else{
 			<div id="profile-header" class="header"> 
 				<?php
 				echo '<a title="Back button" href="';
-
 				if (isset($_REQUEST['b'])){
 					switch($_GET['b']){
 						case "w":
@@ -203,15 +205,15 @@ else{
 							echo 'files.php?b='.$_GET['p'];
 							break;	
 						default:
-							echo 'desktop.php';
+							echo 'desktop.php?b='.$_GET['b'];
 						}
 					}
-					else echo 'desktop.php';
+					else echo 'desktop.php?b='.$_GET['b'];
 					echo '" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;width: 40px; height: 20px;"><img src="styles/'.$project_id.'/images/back.png"></a>';
 
 				?>
 				<img src="styles/<?php echo $project_id;?>/images/header.png" style="height:75%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;">
-				<a title="Home button" href='desktop.php<?php if(isset($_REQUEST['update']))echo"?b=1";?>'  style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;z-index:1;width:30px; height:30px;"><img src="styles/<?php echo $project_id;?>/images/home.png"></a>				
+				<a title="Home button" href='desktop.php<?php if(isset($_REQUEST['update'])||isset($_GET['b']))echo"?b=1";?>'  style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;z-index:1;width:30px; height:30px;"><img src="styles/<?php echo $project_id;?>/images/home.png"></a>				
 			</div>
 			<div id='profile-area'>
 				<form action='profile.php' method='POST' enctype='multipart/form-data' onsubmit='Spin();return true;' style='height: 100%;'>
@@ -262,9 +264,15 @@ else{
 								echo "<input type='hidden' id='update' name='update' value='1'>";
 								echo "<input type='hidden' id='b' name='b' value='".$_REQUEST['b']."'>";
 								echo "<center><input type='submit' id='submit_btn' value='Update'></center><br>";
+							
+							
+								if($project_id=='126' ) echo '<a href="change_password.php?b='.$_GET['b'].'" style="color: black;font-size:12px;/* text-align: right; *//* float: right; *//* margin-bottom: 10px; */margin-left: 10px;"> Change password</a>';
+
 							?>
 								<!--<button id="update_button" onClick='update_profile();' style='margin-bottom: 40px;display:none;'>Update your profile</button>-->
 						</div>
+							
+
 					</div>
 				</form>
 			</div>

@@ -31,6 +31,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';  
@@ -47,14 +49,14 @@ else{
 			var PROJECT_ID = '<?php echo $project_id;?>';
 			var PROFILE_IMAGE = '<?php echo $profile_image;?>';
 			var AUDIENCE_FIRST_NAME = '<?php echo $audience_first_name;?>';
-			var type = 'blog';
+			var type = 'Blog';
 		</script>
 	</head>
 	<body>
 		<div id="blog-wrapper" class="wrapper" >
 			<div class="header" id="blog-header"> 
 				<a title="Back button" href="#" onclick="back();return false;" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;overflow:auto;width: 36px; height: 36px;z-index: 1;"><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/mail_back.png"></a>
-				<div style="height:65%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;margin:auto;" ><img src='<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/blog_logo.png' style="height:100%;" ></div>
+				<div style="height:65%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;margin:auto;" ><img src='styles/<?php echo $project_id;?>/images/blog_nohex.png' style="height:100%;"><img src='styles/<?php echo $project_id;?>/images/blog_logo.png' style="height:100%;" ></div>
 				<a id='home' title="Home button" href="desktop.php" style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;width:30px; height:30px;z-index: 1;"><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/home.png"></a>
 			</div>
 			<div id="spinner"></div>

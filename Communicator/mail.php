@@ -31,6 +31,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';  
@@ -42,12 +44,14 @@ else{
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/spin.min.js"></script>
 		<script type="text/javascript" src="js/communicator.js"></script>
+		<script type="text/javascript" src="js/preventOverScroll.js"></script>		
+
 		<script>
 			var AUDIENCE_ID = '<?php echo $audience_id;?>';
 			var PROJECT_ID = '<?php echo $project_id;?>';
 			var PROFILE_IMAGE = '<?php echo $profile_image;?>';
 			var AUDIENCE_FIRST_NAME = '<?php echo $audience_first_name;?>';
-			var type = 'mail';
+			var type = 'Mail';
 		</script>
 	</head>
 	<body>

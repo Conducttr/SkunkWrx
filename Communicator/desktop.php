@@ -1,11 +1,12 @@
 <?php
 session_start(); 
 include_once "api.php";
+
 if (isset($_SESSION['audience_id']) && isset($_SESSION['PROJECT_ID'])){	
 	if (isset($_GET['b'])){		
 		$audience_id = $_SESSION['audience_id'];
 		$api = new Conducttr_API($_SESSION['audience_id']);
-		$api->get_inventory_attributes();
+		$api->get_message_feeds();
 		$icons = $api->print_icons(); 
 	}
 	else {
@@ -27,6 +28,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$_SESSION['PROJECT_ID'].'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$_SESSION['PROJECT_ID'].'/communicator.css" type="text/css" />';  
@@ -43,30 +46,37 @@ else{
 			<div class="header" id="desktop-header" > 
 				<?php echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/header.png' style='height:75%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;'>"; ?>
 			</div>
-			<div style="width:80%;margin:auto;padding-top: 7%;height:80%">
-				<div style="margin: -10px; overflow:auto;margin-bottom:15px;">	
+			<div style="width:80%;margin:auto;padding-top: 1%;height:84%">
+				<!--<div style="margin: -10px; overflow:auto;">	-->
 					<?php 				
 						for ($i=0; $i<sizeof($icons);  $i++){
-							if($icons[$i]['type']=='Blog'){
-								echo '<a id="'.$icons[$i]['type'].'" href="'.$icons[$i]['type'].'.php" style="float:left;margin:10px;position:relative;width: 80px;height: 120px;text-align: center;text-decoration: none;color: black; font-weight: bold;font-family: Gotham;">';
-									if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
-									echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/play.png'  style='width:80px;'>";
-									echo '<span>Season 1</span>';
-								echo '</a>';	
+							if(strtolower ($icons[$i]['type'])=='blog' ||strtolower ($icons[$i]['type'])=='msngr' || strtolower ($icons[$i]['type'])=='microblog' || strtolower ($icons[$i]['type'])=='gosocial' || strtolower ($icons[$i]['type'])=='mail' || strtolower ($icons[$i]['type'])=='media'){
+								/*
+								if($icons[$i]['type']=='Blog'){
+									echo '<a id="'.$icons[$i]['type'].'" class="app_icon" href="'.$icons[$i]['type'].'.php" style="float:left;margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px;position:relative;width: 25%;text-align: center;text-decoration: none; font-weight: bold;">';
+										if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
+										echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/play.png'  style='width:100%;'>";
+										echo '<span>Season 1</span>';
+									echo '</a>';	
+								}
+								*/ 
+								if($icons[$i]['type']!='Media'){
+								//if($icons[$i]['type']!='Media' && $icons[$i]['total']>0){
+
+									echo '<a id="'.$icons[$i]['type'].'" class="app_icon" href="'.$icons[$i]['type'].'.php" style="float:left;margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px;position:relative;width: 25%;text-align: center;text-decoration: none; font-weight: bold;">';
+										if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
+										echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/".$icons[$i]['type'].".png'  style='width:100%;'>";
+										echo '<span>'.$icons[$i]['type'].'</span>';
+									echo '</a>';	
+								}
 							}
-							else if($icons[$i]['type']!='Media'){
-								echo '<a id="'.$icons[$i]['type'].'" href="'.$icons[$i]['type'].'.php" style="float:left;margin:10px;position:relative;width: 80px;height: 120px;text-align: center;text-decoration: none;color: black; font-weight: bold;font-family: Gotham;">';
-									if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
-									echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/".$icons[$i]['type'].".png'  style='width:80px;'>";
-									echo '<span>'.$icons[$i]['type'].'</span>';
-								echo '</a>';	
-							}
-							
 						}					
 					?>
-				</div>
+				<!--</div>-->
 
-				<div style='position:absolute;bottom:8%;width:80%'>
+				<!--<div style='position:absolute;bottom:8%;width:80%'>-->
+				<div  style='overflow: auto;position: absolute;right: 0;left: 0;bottom: 7%;'>
+
 					<div id='stats' style='position:relative;width:100%'>
 						
 					</div>
@@ -100,8 +110,8 @@ else{
 									'inputColor': "red",
 									'fgColor' : "red",
 									'bgColor' : "transparent",
-									'width' : 90,
-									'height' : 90,
+									'width' : 80,
+									'height' : 80,
 									'skin': "tron",
 									'thickness': ".3",
 									format : function (value) {
@@ -129,8 +139,8 @@ else{
 									'inputColor': "yellow",
 									'fgColor' : "yellow",
 									'bgColor' : "transparent",
-									'width' : 90,
-									'height' : 90,
+									'width' : 80,
+									'height' : 80,
 									'skin': 'tron',
 									'thickness': ".3",
 									'min':0,

@@ -5,7 +5,6 @@ if(!isset($_SESSION["audience_id"])) {
 }
 else{
 	include_once "api.php";
-
 	$audience_id = $_SESSION['audience_id'];
 	$api = new Conducttr_API($_SESSION['audience_id']);
 	$value = $api->get_audience_details();
@@ -14,13 +13,14 @@ else{
 		$audience_first_name = $value[0]['audience_first_name'];
 
 		$audience_last_name = $value[0]['audience_last_name'];
-		$project_id = $value[0]['project_id'];		
+		$project_id = $value[0]['project_id'];	
+		$delay =$api->get_delay();
 	}
 	else{
 		$profile_image = 'styles/'.$_SESSION['PROJECT_ID'].'/profiles/you.png';
 		$audience_first_name = 'You';
 		$project_id = $_SESSION['PROJECT_ID'];		
-	
+		$delay = 3000;
 	}
 } 
 ?>
@@ -33,6 +33,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';  
@@ -43,22 +45,22 @@ else{
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		<meta name="description" content="" />
 		
-		
+		<link href="css/lightbox.css" rel="stylesheet"  type="text/css" />
+		<link href="css/patternLock.css"  rel="stylesheet" type="text/css" />
+
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/spin.min.js"></script>
 		<script type="text/javascript" src="js/communicator.js"></script>
-		<script src="js/lightbox.min.js"></script>
-		<link href="css/lightbox.css" rel="stylesheet" />				
+		<script type="text/javascript" src="js/lightbox.min.js"></script>
+		<script type="text/javascript" src="js/patternLock.min.js"></script>		
+		<script type="text/javascript" src="js/preventOverScroll.js"></script>		
 		<script>
-
-
 			var AUDIENCE_ID = '<?php echo $audience_id;?>';
 			var PROFILE_IMAGE = '<?php echo $profile_image;?>';
 			var AUDIENCE_FIRST_NAME = '<?php echo $audience_first_name;?>';
 			var PROJECT_ID = '<?php echo $project_id;?>';
-			var type = 'msngr';
-			
-			
+			var DELAY = '<?php echo $delay;?>';
+			var type = 'Msngr';
 		</script>
 
 	</head>
@@ -72,11 +74,8 @@ else{
 				<a id='home' title="Home button" href="desktop.php"  style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;width:30px; height:30px;z-index:1;"><img src="styles/<?php echo $project_id;?>/images/home.png"></a>
 			</div>
 			<div id="spinner"></div>
-			<div id="no-bounce-wrapper"  >					
-				<div class="no-bounce"><div><div>
-					<div id="content-area" class="msngr-area"></div>						
-				</div></div></div>
-			</div>
+			
+			<div id="content-area" class="msngr-area"></div>						
 			
 			<div id="send-message-area"></div>
 

@@ -32,7 +32,9 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
-				<?php 	
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
+		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';  
 			echo '<link href="styles/'.$project_id.'/images/favicon.png" rel="apple-touch-icon" />';
@@ -56,33 +58,33 @@ else{
 		<div id="files-wrapper" class="wrapper" >
 			<div class="header" id="files-header"> 
 				<?php
+				echo '<a title="Back button" href="';
 				if (isset($_REQUEST['b'])){
-					echo '<a title="Back button" href="';
-						switch($_GET['b']){
-							case "w":
-								echo 'msngr.php';
-								break;
-							case "f":
-								echo 'gosocial.php';
-								break;
-							case "t":
-								echo 'microblog.php';
-								break;
-							case "c":
-								echo 'mail.php';
-								break;	
-							case "p":
-								echo 'profiles.php?b='.$_GET['p'];
-								break;
-							case "b":
-								echo 'badges.php?b='.$_GET['p'];
-								break;	
-							default:
-								echo 'desktop.php';
-						}
+					switch($_GET['b']){
+						case "w":
+							echo 'msngr.php';
+							break;
+						case "f":
+							echo 'gosocial.php';
+							break;
+						case "t":
+							echo 'microblog.php';
+							break;
+						case "c":
+							echo 'mail.php';
+							break;	
+						case "p":
+							echo 'profiles.php?b='.$_GET['p'];
+							break;
+						case "b":
+							echo 'badges.php?b='.$_GET['p'];
+							break;	
+						default:
+							echo 'desktop.php';
 					}
-					else echo 'desktop.php;';
-					echo '" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;width: 40px; height: 20px;"><img src="styles/'.$project_id.'/images/back.png"></a>';
+				}
+				else echo 'desktop.php';
+				echo '" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;width: 40px; height: 20px;"><img src="styles/'.$project_id.'/images/back.png"></a>';
 
 				?>				
 				<img src='styles/<?php echo $project_id;?>/images/header.png' style="height:75%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;">

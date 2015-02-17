@@ -31,6 +31,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';  
@@ -47,8 +49,8 @@ else{
 		<div id="badges-wrapper" class="wrapper" >
 			<div id="badges-header" class="header"> 
 				<?php
+					echo '<a title="Back button" href="';
 					if (isset($_GET['b'])){
-						echo '<a title="Back button" href="';
 						switch($_GET['b']){
 							case "w":
 								echo 'msngr.php';
@@ -72,7 +74,7 @@ else{
 								echo 'desktop.php';
 						}
 					}
-					else echo 'desktop.php;';
+					else echo 'desktop.php';
 					echo '" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;width: 40px; height: 20px;"><img src="styles/'.$project_id.'/images/back.png"></a>';
 
 				?>
