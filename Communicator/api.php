@@ -411,7 +411,7 @@ class Conducttr_API {
 			curl_close($curl);
 			
 			$roles = array();
-			$st = $this->db->prepare('INSERT INTO audience (audience_email,project_id) VALUES (:audience_email,:project_id)');
+			$st = $this->db->prepare('INSERT INTO audience (audience_email,project_id,roles) VALUES (:audience_email,:project_id,:roles)');
 			$st->bindValue(':audience_email', $audience_email, PDO::PARAM_STR);
 			$st->bindValue(':project_id', $this->CONDUCTTR_PROJECT_ID, PDO::PARAM_INT);
 			$st->bindValue(':roles', serialize($roles), PDO::PARAM_STR);
