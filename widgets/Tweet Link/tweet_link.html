@@ -1,0 +1,48 @@
+<style>
+	#twitter_link{
+		background-color:#56ADE8;
+		color:white;
+		border:0px;
+		padding: 5px;
+		cursor:pointer;
+	}
+</style>
+
+<button id="twitter_link" onClick="twitter_link()">Tweet!</button>
+
+
+<script>
+	/*------------------------------ Edit the information below ------------------------*/ 
+	       
+	var CONDUCTTR_CONSUMER_KEY = "5b14735c13cfe77b99b035da3e3b18d8054e4b5b9";
+	var CONDUCTTR_PROJECT_ID = "3758";
+	var CONDUCTTR_METHOD_NAME = "unauth/get_tweet_link";
+	
+	/*------------------------------- Edit the information above ------------------------*/      
+			
+			
+	function twitter_link(){
+		jsonp("https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/"+CONDUCTTR_METHOD_NAME+"?consumer_key="+CONDUCTTR_CONSUMER_KEY, function(data) {
+		console.log(data);
+		for (var i = 0; i <= data.results.length - 1; i++ ){
+			for (var key in data.results[i]) {
+				if (data.results[i].hasOwnProperty(key)) {
+					twitter_winRef = window.open( 'https://twitter.com/intent/tweet?text='+data.results[i][key],'name','width=600,height=400');
+				}
+			} 
+		}
+		});
+		return false;
+	};
+	function jsonp(url, callback) {
+		var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+		window[callbackName] = function(data) {
+			delete window[callbackName];
+			document.body.removeChild(script);
+			callback(data);
+		};
+		var script = document.createElement('script');
+		script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+		document.body.appendChild(script);
+	} 	
+</script>

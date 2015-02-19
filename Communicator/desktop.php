@@ -19,7 +19,6 @@ else{
 	header('Location: index.php'); 
 }
 ?>
-
 <!doctype html>
 <html lang="en" >
 	<head>
@@ -47,34 +46,20 @@ else{
 				<?php echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/header.png' style='height:75%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;'>"; ?>
 			</div>
 			<div style="width:80%;margin:auto;padding-top: 1%;height:84%">
-				<!--<div style="margin: -10px; overflow:auto;">	-->
-					<?php 				
-						for ($i=0; $i<sizeof($icons);  $i++){
-							if(strtolower ($icons[$i]['type'])=='blog' ||strtolower ($icons[$i]['type'])=='msngr' || strtolower ($icons[$i]['type'])=='microblog' || strtolower ($icons[$i]['type'])=='gosocial' || strtolower ($icons[$i]['type'])=='mail' || strtolower ($icons[$i]['type'])=='media'){
-								/*
-								if($icons[$i]['type']=='Blog'){
-									echo '<a id="'.$icons[$i]['type'].'" class="app_icon" href="'.$icons[$i]['type'].'.php" style="float:left;margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px;position:relative;width: 25%;text-align: center;text-decoration: none; font-weight: bold;">';
-										if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
-										echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/play.png'  style='width:100%;'>";
-										echo '<span>Season 1</span>';
-									echo '</a>';	
-								}
-								*/ 
-								if($icons[$i]['type']!='Media'){
-								//if($icons[$i]['type']!='Media' && $icons[$i]['total']>0){
+				<?php 				
+					for ($i=0; $i<sizeof($icons);  $i++){
+						if(strtolower ($icons[$i]['type'])=='blog' ||strtolower ($icons[$i]['type'])=='msngr' || strtolower ($icons[$i]['type'])=='microblog' || strtolower ($icons[$i]['type'])=='gosocial' || strtolower ($icons[$i]['type'])=='mail' || strtolower ($icons[$i]['type'])=='media'){
 
-									echo '<a id="'.$icons[$i]['type'].'" class="app_icon" href="'.$icons[$i]['type'].'.php" style="float:left;margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px;position:relative;width: 25%;text-align: center;text-decoration: none; font-weight: bold;">';
-										if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
-										echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/".$icons[$i]['type'].".png'  style='width:100%;'>";
-										echo '<span>'.$icons[$i]['type'].'</span>';
-									echo '</a>';	
-								}
+							if($icons[$i]['type']!='Media'){
+								echo '<a id="'.$icons[$i]['type'].'" class="app_icon" href="'.$icons[$i]['type'].'.php" style="float:left;margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px;position:relative;width: 25%;text-align: center;text-decoration: none; font-weight: bold;">';
+									if ($icons[$i]['NotRead']>0)echo "<div class='dot'></div>";
+									echo "<img src='styles/".$_SESSION['PROJECT_ID']."/images/".$icons[$i]['type'].".png'  style='width:100%;'>";
+									echo '<span>'.$icons[$i]['type'].'</span>';
+								echo '</a>';	
 							}
-						}					
-					?>
-				<!--</div>-->
-
-				<!--<div style='position:absolute;bottom:8%;width:80%'>-->
+						}
+					}					
+				?>
 				<div  style='overflow: auto;position: absolute;right: 0;left: 0;bottom: 7%;'>
 
 					<div id='stats' style='position:relative;width:100%'>
@@ -104,7 +89,6 @@ else{
 						console.log(JSON.stringify(data));	
 						if (typeof data.results[2].progress !== 'undefined') {
 							$("#stats").append("<div style='position:relative;width:50%;float:left;text-align:center;'><span> Progress </span><br><br><input type='text' value='0' id='progress' style='float:left;'></div>");
-							//setTimeout(function(){ 
 								$("#progress").knob({
 									'readOnly':true,
 									'inputColor': "red",
@@ -118,7 +102,6 @@ else{
 										return value + '%';
 									},
 								});
-							//}, 0);
 							setTimeout(function(){ 
 							
 								$({animatedVal: 0}).animate({animatedVal: progress}, {
@@ -133,7 +116,6 @@ else{
 						}
 						if (typeof data.results[0].points !== 'undefined' && typeof data.results[1].max_points !== 'undefined') {
 							$("#stats").append("<div style='position:relative;width:50%;float:right;text-align:center;'><span> Points </span><br><br><input type='text' value='0' id='points' style='float:right;'></div>");
-							//setTimeout(function(){ 
 								$("#points").knob({
 									'readOnly':true,
 									'inputColor': "yellow",
@@ -146,7 +128,6 @@ else{
 									'min':0,
 									'max':0,
 								});
-							//}, 0);
 							var points = data.results[0].points;
 							var max_points = data.results[1].max_points;
 							$('#points').trigger(
@@ -167,14 +148,9 @@ else{
 
 						}, 500);
 						}
-						
-						
-				
-						 
+									 
 						var progress = data.results[2].progress; 		
-
-							
-							
+						
 						$('#points').trigger(
 							'configure',
 							{
