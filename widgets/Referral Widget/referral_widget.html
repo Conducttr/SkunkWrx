@@ -96,6 +96,14 @@
 			attribute_values+="&audience_email="+document.getElementById('sender_email').value;
 			attribute_values+="&3rdparty_email="+document.getElementById('3rdparty_email').value;
 			attribute_values+="&email_body="+document.getElementById('body').value;
+			
+			var xmlhttp;
+			if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+			else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+			xmlhttp.open("POST", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xmlhttp.send(attribute_values);
+			
 			document.getElementById('email_form_content').style.display="none";
 			document.getElementById('success').style.display="block";
 			setTimeout(function(){ document.getElementById('email_form').style.display="none";}, 3000);
