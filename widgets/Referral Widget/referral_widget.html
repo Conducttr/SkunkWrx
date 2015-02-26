@@ -1,0 +1,213 @@
+<script>
+	/*------------------------------ Edit the information below ------------------------*/        
+
+	var CONDUCTTR_CONSUMER_KEY = "MY_CONDUCTTR_CONSUMER_KEY";
+	var CONDUCTTR_PROJECT_ID = "MY_CONDUCTTR_PROJECT_ID";
+
+	var FACEBOOK_LINK = encodeURIComponent('http://www.conducttr.com');
+
+	var TITLE = "Get More Referrals When You Refer a Friend!";
+	var IMAGE_URL = "Conducttr_logo.png";
+	var SUBTITLE = "Get rewarded for telling your friends about Conducttr";
+	var TEXT = "This is a great tool!";
+	
+	var SUCCESS_TEXT = "This is a great tool!";
+
+
+	/*------------------------------- Edit the information above ------------------------*/      
+	
+	window.onload=function(){
+		
+		var widget = document.getElementById('widget');
+		var sharing_buttons = document.getElementById('sharing_buttons');
+
+		var newTitle = document.createElement('h1');
+		newTitle.innerHTML = TITLE;
+		widget.insertBefore(newTitle,sharing_buttons);
+		
+		var newImage= document.createElement('img');
+		newImage.setAttribute('src',IMAGE_URL);
+		widget.insertBefore(newImage,sharing_buttons);
+		
+		var newSubTitle = document.createElement('h3');
+		newSubTitle.innerHTML = SUBTITLE;
+		widget.insertBefore(newSubTitle,sharing_buttons);
+		
+		var newTextArea = document.createElement('textarea');
+		newTextArea.setAttribute('id','message');
+		newTextArea.setAttribute('rows','7');
+		newTextArea.setAttribute('cols','55');
+		newTextArea.setAttribute('maxlength','50');
+		newTextArea.innerHTML = TEXT;
+		widget.insertBefore(newTextArea,sharing_buttons);
+		
+		
+		var email_form = document.getElementById('email_form');
+		var email_form_content = document.getElementById('email_form_content');
+		var submit_button = document.getElementById('submit_button');
+
+		
+		var newFormTextArea = document.createElement('textarea');
+		newFormTextArea.setAttribute('id','message');
+		newFormTextArea.setAttribute('rows','14');
+		newFormTextArea.setAttribute('cols','55');
+		newFormTextArea.innerHTML = TEXT;
+		email_form_content.insertBefore(newFormTextArea,submit_button);
+		
+		var newbr = document.createElement('br');
+		email_form_content.insertBefore(newbr,submit_button);
+
+		
+		var textarea = document.getElementById('message');
+		var facebook_share = document.getElementById('facebook_share');
+		var twitter_share = document.getElementById('twitter_share');
+		var email_share = document.getElementById('email_share');
+		var submit_button = document.getElementById('submit_button');
+		
+		var FACEBOOK_CAPTION = textarea.value;
+
+		var facebook_sharer_url = 'http://www.facebook.com/sharer.php?'+'u='+encodeURIComponent(FACEBOOK_LINK)+'&amp;t='+encodeURIComponent(FACEBOOK_CAPTION);
+		var tweet_link = 'https://twitter.com/intent/tweet?text='+textarea.value;
+
+		
+		textarea.addEventListener("input propertychange", function(){
+			tweet_link='https://twitter.com/intent/tweet?text='+textarea.value;
+		});
+
+		facebook_share.onclick=function(){
+			facebook_winRef = window.open(facebook_sharer_url,'name','width=600,height=400');
+			call_to_conducttr('facebook');
+			return false;
+		};
+		twitter_share.onclick=function(){
+			twitter_winRef = window.open(tweet_link,'name','width=600,height=400');
+			call_to_conducttr('twitter');
+			return false;
+		};
+		email_share.onclick=function(){
+			document.getElementById('email_form').style.display="block";
+			document.getElementById('email_form_content').style.display="block";
+			document.getElementById('success').style.display="none";
+			return false;
+		};
+		submit_button.onclick=function(){
+			var CONDUCTTR_METHOD_NAME = "email_share";
+			var attribute_values = "consumer_key="+CONDUCTTR_CONSUMER_KEY;
+			attribute_values+="&audience_email="+document.getElementById('sender_email').value;
+			attribute_values+="&3rdparty_email="+document.getElementById('3rdparty_email').value;
+			attribute_values+="&email_body="+document.getElementById('body').value;
+			document.getElementById('email_form_content').style.display="none";
+			document.getElementById('success').style.display="block";
+			setTimeout(function(){ document.getElementById('email_form').style.display="none";}, 3000);
+			return false;
+		};
+	};
+	function call_to_conducttr(matchphrase){
+		var CONDUCTTR_METHOD_NAME = matchphrase+"?consumer_key="+CONDUCTTR_CONSUMER_KEY;
+		var xmlhttp;
+		if (window.XMLHttpRequest)xmlhttp = new XMLHttpRequest();
+		else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");	
+		xmlhttp.open("GET", "https://api.conducttr.com/v1/project/"+CONDUCTTR_PROJECT_ID+"/unauth/"+CONDUCTTR_METHOD_NAME, true);	
+		xmlhttp.send();
+	}; 	
+</script>
+<style>
+	#widget{
+		display:none;
+		background-color:#6086A5;
+		width:440px;
+		height:550px;
+		position:absolute;
+		top:0;
+		bottom:0;
+		right:0;
+		left:0;
+		margin:auto;
+		padding:20px;
+		color:white;
+		text-align:center;
+		font-family: "Gotham";
+	}
+	#widget>img{
+		width:100%;
+	}
+	textarea{
+		margin-top:5px;
+		margin-bottom:5px;
+		text-align:left;
+	}
+	#email_form{
+		width:440px;
+		height:550px;
+		padding:20px;
+		position:absolute;
+		top:0;
+		bottom:0;
+		left:0;
+		right:0;
+		margin:auto;
+		display:none;
+		-webkit-transition: visibility 500ms linear 1s;
+		-moz-transition: visibility 500ms linear 1s;
+		-o-transition: visibility 500ms linear 1s;
+		transition: visibility 500ms linear 1s;
+		
+		/* Fallback for web browsers that don't support RGBa */
+		background-color: rgb(0, 0, 0);
+		/* RGBa with 0.6 opacity */
+		background-color: rgba(0, 0, 0, 0.6);
+		/* For IE 5.5 - 7*/
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+		/* For IE 8*/
+		-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+	}
+	#email_form_content{
+		height: 250px;
+		position:absolute;
+		top:0;
+		bottom:0;
+		left:0;
+		right:0;
+		margin:auto;
+	}
+	.close_button{
+		position:absolute;
+		top:0;
+		right:0;
+		background-color:transparent;
+		border:0;
+		color:white;
+		cursor:pointer;
+	}
+	#success{
+		display:none;
+	}
+	#sharing_buttons{
+		position:absolute;
+		bottom:20px;
+		left:0;
+		right:0;
+		margin:auto;
+	}
+	input[type="email"]{
+		width:250px;	
+	}
+</style>
+<button id="open_button" onClick="document.getElementById('widget').style.display='block'"> Open </button>
+<div id="widget">
+	<button class="close_button" onClick="document.getElementById('widget').style.display='none'">X</button>
+	<div id="sharing_buttons">
+		<a id="facebook_share" target="_blank" href="" ><img class="" src="share_facebook.png" ></a>
+		<a id="twitter_share" target="_blank" href="" ><img class="" src="share_twitter.png" ></a>
+		<a id="email_share" target="_blank" href="" ><img class="" src="share_email.png" ></a>
+	</div>
+	<div id="email_form">
+		<button class="close_button" onClick="document.getElementById('email_form').style.display='none'">X</button>
+		<div id="email_form_content">
+			<input id="sender_email" type="email" placeholder="Enter Your Email Address"><br><br>
+			<input id="3rdparty_email" type="email" placeholder="Enter Email Address"><br><br>
+			<button id="submit_button"> Send </button>
+		</div>
+		<div id="success"></div>
+	</div>
+</div>
