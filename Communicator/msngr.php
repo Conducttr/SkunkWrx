@@ -53,13 +53,16 @@ else{
 		<script type="text/javascript" src="js/communicator.js"></script>
 		<script type="text/javascript" src="js/lightbox.min.js"></script>
 		<script type="text/javascript" src="js/patternLock.min.js"></script>		
-		<script type="text/javascript" src="js/preventOverScroll.js"></script>		
+		<script type="text/javascript" src="js/preventOverScroll.js"></script>
+		<script type="text/javascript" src="js/date.js"></script>
+		
 		<script>
 			var AUDIENCE_ID = '<?php echo $audience_id;?>';
 			var PROFILE_IMAGE = '<?php echo $profile_image;?>';
 			var AUDIENCE_FIRST_NAME = '<?php echo $audience_first_name;?>';
 			var PROJECT_ID = '<?php echo $project_id;?>';
 			var DELAY = '<?php echo $delay;?>';
+
 			var type = 'Msngr';
 		</script>
 
@@ -69,9 +72,9 @@ else{
 		<div id="msngr-wrapper" class="wrapper" >
 
 			<div class="header" id="msngr-header"> 
-				<a title="Back button" href="#" onclick="back(type);return false;" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;overflow:auto;width: 40px; height: 20px;z-index:1;"><img src="styles/<?php echo $project_id;?>/images/back.png"></a>
+				<a id='back' title="Back button" href="#" onclick="back(type);return false;" ><span class="helper"></span><img src="styles/<?php echo $project_id;?>/images/back.png"></a>
 				<div style="height:65%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;margin:auto;" ><img src='styles/<?php echo $project_id;?>/images/msngr_nohex.png' style="height:100%;"><img src='styles/<?php echo $project_id;?>/images/msngr_logo.png' style="height:100%;" ></div>
-				<a id='home' title="Home button" href="desktop.php"  style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;width:30px; height:30px;z-index:1;"><img src="styles/<?php echo $project_id;?>/images/home.png"></a>
+				<a id='home' title="Home button" href="desktop.php" ><span class="helper"></span><img src="styles/<?php echo $project_id;?>/images/home.png"></a>
 			</div>
 			<div id="spinner"></div>
 			

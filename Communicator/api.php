@@ -114,6 +114,7 @@ class Conducttr_API {
 		$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 		$st->execute();
 		$data=$st->fetchAll(PDO::FETCH_ASSOC);
+		//return json_encode($data);
 		return $data;
 	}
 	
@@ -265,6 +266,7 @@ class Conducttr_API {
 			return $result;
 		}
 		
+		//preg_match("/^(?!\.)((?!.*\.{2})[a-zA-Z0-9\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0250-\u02AF\u0300-\u036F\u0370-\u03FF\u0400-\u04FF\u0500-\u052F\u0530-\u058F\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u0780-\u07BF\u07C0-\u07FF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F\u0D80-\u0DFF\u0E00-\u0E7F\u0E80-\u0EFF\u0F00-\u0FFF\u1000-\u109F\u10A0-\u10FF\u1100-\u11FF\u1200-\u137F\u1380-\u139F\u13A0-\u13FF\u1400-\u167F\u1680-\u169F\u16A0-\u16FF\u1700-\u171F\u1720-\u173F\u1740-\u175F\u1760-\u177F\u1780-\u17FF\u1800-\u18AF\u1900-\u194F\u1950-\u197F\u1980-\u19DF\u19E0-\u19FF\u1A00-\u1A1F\u1B00-\u1B7F\u1D00-\u1D7F\u1D80-\u1DBF\u1DC0-\u1DFF\u1E00-\u1EFF\u1F00-\u1FFFu20D0-\u20FF\u2100-\u214F\u2C00-\u2C5F\u2C60-\u2C7F\u2C80-\u2CFF\u2D00-\u2D2F\u2D30-\u2D7F\u2D80-\u2DDF\u2F00-\u2FDF\u2FF0-\u2FFF\u3040-\u309F\u30A0-\u30FF\u3100-\u312F\u3130-\u318F\u3190-\u319F\u31C0-\u31EF\u31F0-\u31FF\u3200-\u32FF\u3300-\u33FF\u3400-\u4DBF\u4DC0-\u4DFF\u4E00-\u9FFF\uA000-\uA48F\uA490-\uA4CF\uA700-\uA71F\uA800-\uA82F\uA840-\uA87F\uAC00-\uD7AF\uF900-\uFAFF\.!#$%&'*+-/=?^_`{|}~\-\d]+)@(?!\.)([a-zA-Z0-9\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0250-\u02AF\u0300-\u036F\u0370-\u03FF\u0400-\u04FF\u0500-\u052F\u0530-\u058F\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u0780-\u07BF\u07C0-\u07FF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F\u0D80-\u0DFF\u0E00-\u0E7F\u0E80-\u0EFF\u0F00-\u0FFF\u1000-\u109F\u10A0-\u10FF\u1100-\u11FF\u1200-\u137F\u1380-\u139F\u13A0-\u13FF\u1400-\u167F\u1680-\u169F\u16A0-\u16FF\u1700-\u171F\u1720-\u173F\u1740-\u175F\u1760-\u177F\u1780-\u17FF\u1800-\u18AF\u1900-\u194F\u1950-\u197F\u1980-\u19DF\u19E0-\u19FF\u1A00-\u1A1F\u1B00-\u1B7F\u1D00-\u1D7F\u1D80-\u1DBF\u1DC0-\u1DFF\u1E00-\u1EFF\u1F00-\u1FFF\u20D0-\u20FF\u2100-\u214F\u2C00-\u2C5F\u2C60-\u2C7F\u2C80-\u2CFF\u2D00-\u2D2F\u2D30-\u2D7F\u2D80-\u2DDF\u2F00-\u2FDF\u2FF0-\u2FFF\u3040-\u309F\u30A0-\u30FF\u3100-\u312F\u3130-\u318F\u3190-\u319F\u31C0-\u31EF\u31F0-\u31FF\u3200-\u32FF\u3300-\u33FF\u3400-\u4DBF\u4DC0-\u4DFF\u4E00-\u9FFF\uA000-\uA48F\uA490-\uA4CF\uA700-\uA71F\uA800-\uA82F\uA840-\uA87F\uAC00-\uD7AF\uF900-\uFAFF\-\.\d]+)((\.([a-zA-Z\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u0250-\u02AF\u0300-\u036F\u0370-\u03FF\u0400-\u04FF\u0500-\u052F\u0530-\u058F\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u0780-\u07BF\u07C0-\u07FF\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0B80-\u0BFF\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F\u0D80-\u0DFF\u0E00-\u0E7F\u0E80-\u0EFF\u0F00-\u0FFF\u1000-\u109F\u10A0-\u10FF\u1100-\u11FF\u1200-\u137F\u1380-\u139F\u13A0-\u13FF\u1400-\u167F\u1680-\u169F\u16A0-\u16FF\u1700-\u171F\u1720-\u173F\u1740-\u175F\u1760-\u177F\u1780-\u17FF\u1800-\u18AF\u1900-\u194F\u1950-\u197F\u1980-\u19DF\u19E0-\u19FF\u1A00-\u1A1F\u1B00-\u1B7F\u1D00-\u1D7F\u1D80-\u1DBF\u1DC0-\u1DFF\u1E00-\u1EFF\u1F00-\u1FFF\u20D0-\u20FF\u2100-\u214F\u2C00-\u2C5F\u2C60-\u2C7F\u2C80-\u2CFF\u2D00-\u2D2F\u2D30-\u2D7F\u2D80-\u2DDF\u2F00-\u2FDF\u2FF0-\u2FFF\u3040-\u309F\u30A0-\u30FF\u3100-\u312F\u3130-\u318F\u3190-\u319F\u31C0-\u31EF\u31F0-\u31FF\u3200-\u32FF\u3300-\u33FF\u3400-\u4DBF\u4DC0-\u4DFF\u4E00-\u9FFF\uA000-\uA48F\uA490-\uA4CF\uA700-\uA71F\uA800-\uA82F\uA840-\uA87F\uAC00-\uD7AF\uF900-\uFAFF]){2,63})+)$/,$audience_email,$matches);
 		preg_match("/^(?!\.)((?!.*\.{2})[a-zA-Z0-9\x{0080}-\x{00FF}\x{0100}-\x{017F}\x{0180}-\x{024F}\x{0250}-\x{02AF}\x{0300}-\x{036F}\x{0370}-\x{03FF}\x{0400}-\x{04FF}\x{0500}-\x{052F}\x{0530}-\x{058F}\x{0590}-\x{05FF}\x{0600}-\x{06FF}\x{0700}-\x{074F}\x{0750}-\x{077F}\x{0780}-\x{07BF}\x{07C0}-\x{07FF}\x{0900}-\x{097F}\x{0980}-\x{09FF}\x{0A00}-\x{0A7F}\x{0A80}-\x{0AFF}\x{0B00}-\x{0B7F}\x{0B80}-\x{0BFF}\x{0C00}-\x{0C7F}\x{0C80}-\x{0CFF}\x{0D00}-\x{0D7F}\x{0D80}-\x{0DFF}\x{0E00}-\x{0E7F}\x{0E80}-\x{0EFF}\x{0F00}-\x{0FFF}\x{1000}-\x{109F}\x{10A0}-\x{10FF}\x{1100}-\x{11FF}\x{1200}-\x{137F}\x{1380}-\x{139F}\x{13A0}-\x{13FF}\x{1400}-\x{167F}\x{1680}-\x{169F}\x{16A0}-\x{16FF}\x{1700}-\x{171F}\x{1720}-\x{173F}\x{1740}-\x{175F}\x{1760}-\x{177F}\x{1780}-\x{17FF}\x{1800}-\x{18AF}\x{1900}-\x{194F}\x{1950}-\x{197F}\x{1980}-\x{19DF}\x{19E0}-\x{19FF}\x{1A00}-\x{1A1F}\x{1B00}-\x{1B7F}\x{1D00}-\x{1D7F}\x{1D80}-\x{1DBF}\x{1DC0}-\x{1DFF}\x{1E00}-\x{1EFF}\x{1F00}-\x{1FFF}\x{20D0}-\x{20FF}\x{2100}-\x{214F}\x{2C00}-\x{2C5F}\x{2C60}-\x{2C7F}\x{2C80}-\x{2CFF}\x{2D00}-\x{2D2F}\x{2D30}-\x{2D7F}\x{2D80}-\x{2DDF}\x{2F00}-\x{2FDF}\x{2FF0}-\x{2FFF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{3100}-\x{312F}\x{3130}-\x{318F}\x{3190}-\x{319F}\x{31C0}-\x{31EF}\x{31F0}-\x{31FF}\x{3200}-\x{32FF}\x{3300}-\x{33FF}\x{3400}-\x{4DBF}\x{4DC0}-\x{4DFF}\x{4E00}-\x{9FFF}\x{A000}-\x{A48F}\x{A490}-\x{A4CF}\x{A700}-\x{A71F}\x{A800}-\x{A82F}\x{A840}-\x{A87F}\x{AC00}-\x{D7AF}\x{F900}-\x{FAFF}\.!#$%&'*+-\/=?^_`{|}~\-\d]+)@(?!\.)([a-zA-Z0-9\x{0080}-\x{00FF}\x{0100}-\x{017F}\x{0180}-\x{024F}\x{0250}-\x{02AF}\x{0300}-\x{036F}\x{0370}-\x{03FF}\x{0400}-\x{04FF}\x{0500}-\x{052F}\x{0530}-\x{058F}\x{0590}-\x{05FF}\x{0600}-\x{06FF}\x{0700}-\x{074F}\x{0750}-\x{077F}\x{0780}-\x{07BF}\x{07C0}-\x{07FF}\x{0900}-\x{097F}\x{0980}-\x{09FF}\x{0A00}-\x{0A7F}\x{0A80}-\x{0AFF}\x{0B00}-\x{0B7F}\x{0B80}-\x{0BFF}\x{0C00}-\x{0C7F}\x{0C80}-\x{0CFF}\x{0D00}-\x{0D7F}\x{0D80}-\x{0DFF}\x{0E00}-\x{0E7F}\x{0E80}-\x{0EFF}\x{0F00}-\x{0FFF}\x{1000}-\x{109F}\x{10A0}-\x{10FF}\x{1100}-\x{11FF}\x{1200}-\x{137F}\x{1380}-\x{139F}\x{13A0}-\x{13FF}\x{1400}-\x{167F}\x{1680}-\x{169F}\x{16A0}-\x{16FF}\x{1700}-\x{171F}\x{1720}-\x{173F}\x{1740}-\x{175F}\x{1760}-\x{177F}\x{1780}-\x{17FF}\x{1800}-\x{18AF}\x{1900}-\x{194F}\x{1950}-\x{197F}\x{1980}-\x{19DF}\x{19E0}-\x{19FF}\x{1A00}-\x{1A1F}\x{1B00}-\x{1B7F}\x{1D00}-\x{1D7F}\x{1D80}-\x{1DBF}\x{1DC0}-\x{1DFF}\x{1E00}-\x{1EFF}\x{1F00}-\x{1FFF}\x{20D0}-\x{20FF}\x{2100}-\x{214F}\x{2C00}-\x{2C5F}\x{2C60}-\x{2C7F}\x{2C80}-\x{2CFF}\x{2D00}-\x{2D2F}\x{2D30}-\x{2D7F}\x{2D80}-\x{2DDF}\x{2F00}-\x{2FDF}\x{2FF0}-\x{2FFF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{3100}-\x{312F}\x{3130}-\x{318F}\x{3190}-\x{319F}\x{31C0}-\x{31EF}\x{31F0}-\x{31FF}\x{3200}-\x{32FF}\x{3300}-\x{33FF}\x{3400}-\x{4DBF}\x{4DC0}-\x{4DFF}\x{4E00}-\x{9FFF}\x{A000}-\x{A48F}\x{A490}-\x{A4CF}\x{A700}-\x{A71F}\x{A800}-\x{A82F}\x{A840}-\x{A87F}\x{AC00}-\x{D7AF}\x{F900}-\x{FAFF}\-\.\d]+)((\.([a-zA-Z\x{0080}-\x{00FF}\x{0100}-\x{017F}\x{0180}-\x{024F}\x{0250}-\x{02AF}\x{0300}-\x{036F}\x{0370}-\x{03FF}\x{0400}-\x{04FF}\x{0500}-\x{052F}\x{0530}-\x{058F}\x{0590}-\x{05FF}\x{0600}-\x{06FF}\x{0700}-\x{074F}\x{0750}-\x{077F}\x{0780}-\x{07BF}\x{07C0}-\x{07FF}\x{0900}-\x{097F}\x{0980}-\x{09FF}\x{0A00}-\x{0A7F}\x{0A80}-\x{0AFF}\x{0B00}-\x{0B7F}\x{0B80}-\x{0BFF}\x{0C00}-\x{0C7F}\x{0C80}-\x{0CFF}\x{0D00}-\x{0D7F}\x{0D80}-\x{0DFF}\x{0E00}-\x{0E7F}\x{0E80}-\x{0EFF}\x{0F00}-\x{0FFF}\x{1000}-\x{109F}\x{10A0}-\x{10FF}\x{1100}-\x{11FF}\x{1200}-\x{137F}\x{1380}-\x{139F}\x{13A0}-\x{13FF}\x{1400}-\x{167F}\x{1680}-\x{169F}\x{16A0}-\x{16FF}\x{1700}-\x{171F}\x{1720}-\x{173F}\x{1740}-\x{175F}\x{1760}-\x{177F}\x{1780}-\x{17FF}\x{1800}-\x{18AF}\x{1900}-\x{194F}\x{1950}-\x{197F}\x{1980}-\x{19DF}\x{19E0}-\x{19FF}\x{1A00}-\x{1A1F}\x{1B00}-\x{1B7F}\x{1D00}-\x{1D7F}\x{1D80}-\x{1DBF}\x{1DC0}-\x{1DFF}\x{1E00}-\x{1EFF}\x{1F00}-\x{1FFF}\x{20D0}-\x{20FF}\x{2100}-\x{214F}\x{2C00}-\x{2C5F}\x{2C60}-\x{2C7F}\x{2C80}-\x{2CFF}\x{2D00}-\x{2D2F}\x{2D30}-\x{2D7F}\x{2D80}-\x{2DDF}\x{2F00}-\x{2FDF}\x{2FF0}-\x{2FFF}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{3100}-\x{312F}\x{3130}-\x{318F}\x{3190}-\x{319F}\x{31C0}-\x{31EF}\x{31F0}-\x{31FF}\x{3200}-\x{32FF}\x{3300}-\x{33FF}\x{3400}-\x{4DBF}\x{4DC0}-\x{4DFF}\x{4E00}-\x{9FFF}\x{A000}-\x{A48F}\x{A490}-\x{A4CF}\x{A700}-\x{A71F}\x{A800}-\x{A82F}\x{A840}-\x{A87F}\x{AC00}-\x{D7AF}\x{F900}-\x{FAFF}]){2,63})+)$/u",$audience_email,$matches);
 		if(empty($matches)){
 			$result = array ("Response" => array("status"=>401,"message"=>"Wrong email format","error"=>$matches));
@@ -286,7 +288,7 @@ class Conducttr_API {
 			$result = array ("Response" => array("status"=>401,"message"=>"Empty project"));
 			return $result;
 		}
-		*/
+		*/ 
 		$this->CONDUCTTR_PROJECT_ID = $project_id;
 		$st = $this->db->prepare('SELECT * FROM projects WHERE PROJECT_ID=:project_id ');
 		$st->bindValue(':project_id', $project_id, PDO::PARAM_INT);
@@ -305,13 +307,11 @@ class Conducttr_API {
 		}
 		else return array("Response" => array("status"=>401,"message"=>"Not valid project", "error"=>$st->errorInfo()));			
 		
-		$st = $this->db->prepare('SELECT * FROM audience WHERE audience_email=:audience_email AND project_id=:project_id');
+		$st = $this->db->prepare('SELECT * FROM audience WHERE LOWER(audience_email)=:audience_email AND project_id=:project_id');
 		$st->bindValue(':audience_email', $audience_email, PDO::PARAM_STR);
 		$st->bindValue(':project_id', $this->CONDUCTTR_PROJECT_ID, PDO::PARAM_INT);
 		$st->execute();
 		$data=$st->fetchAll(PDO::FETCH_ASSOC);
-		
-		/* User is already registered */
 		if (!empty($data)){
 			if($this->REGISTRATION_REQUIRED){
 				if ( $data[0]['password'] != md5($password)){
@@ -319,12 +319,61 @@ class Conducttr_API {
 					return $result;
 				}
 			}
-			$_SESSION['audience_id'] = $data[0]['id'];
-			$audience_id=$data[0]['id'];
+			
 			if ( true ){
 				$_SESSION['audience_id'] = $data[0]['id'];
 				$audience_id=$data[0]['id'];
+				
+				/* CHECK ROLES */
+				if ($this->ROLES_GROUP_ID>0){
+					$CONDUCTTR_REQUEST_URL = "https://api.conducttr.com/v1/project/".$this->CONDUCTTR_PROJECT_ID."/child_groups";		
+					$params = array(
+						"audience_email"=>$audience_email,
+						"root_group_id"=>$this->ROLES_GROUP_ID
+					);
+					$options = array('consumer_key' => $this->CONDUCTTR_CONSUMER_KEY, 'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET);
+					OAuthStore::instance("2Leg", $options);		
+					$req = new OAuthRequestSigner($CONDUCTTR_REQUEST_URL, "GET", $params);
+					$secrets = array(
+						'signature_methods' => array('HMAC-SHA1'),
+						'token' => $this->CONDUCTTR_ACCESS_TOKEN,
+						'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+						//'nonce' => md5(md5(date('H:i:s')).md5(time())),			
+						'nonce' => $this->makeNonce(),			
+						'timestamp' => time(),
+						'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
+						'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
+					);
+					$req->sign(0, $secrets);
+					$signed_url = sprintf('%s?%s', $CONDUCTTR_REQUEST_URL, $req->getQueryString(false));
+					$options = array(
+						CURLOPT_HEADER => false,
+						CURLOPT_URL => $signed_url,
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_SSL_VERIFYPEER => false
+					);
+					$curl = curl_init();
+					curl_setopt_array($curl, $options);
+					$response = curl_exec($curl);  
+					if (!$response) {  
+						$response = curl_error($curl);  
+					}  
+					curl_close($curl);		
+					$groups = json_decode($response);
+								
+					$roles = array();
+					for ($i=0; $i<sizeof($groups->results);  $i++){
+						$roles[]=$groups->results[$i]->name;
+					}
+					$st = $this->db->prepare('UPDATE audience SET roles=:roles WHERE id=:audience_id');
+					$st->bindValue(':audience_id', $audience_id, PDO::PARAM_INT);
+					$st->bindValue(':roles', serialize($roles), PDO::PARAM_STR);
+					if($st->execute()) $result = array ("Response" => array("status"=>200,"message"=>"Login successful",'groups'=>$groups,'roles'=>serialize($roles),"error"=>$st->errorInfo() ));
+					else $result = array ("Response" => array("status"=>200,"message"=>"Login successful,roles not updated","error"=>$st->errorInfo()));
+				}
+				
 				$result = array ("Response" => array("status"=>200,"message"=>"Login successful","action"=>"login"));
+
 				/* Login API Call to Conducttr */
 				$CONDUCTTR_REQUEST_URL = "https://api.conducttr.com/v1/project/".$this->CONDUCTTR_PROJECT_ID."/login";		
 				$params = array(
@@ -365,7 +414,6 @@ class Conducttr_API {
 
 			return $result;
 		}
-		/* New user */
 		else {
 			if($this->REGISTRATION_REQUIRED){
 				$result = array ("Response" => array("status"=>401,"message"=>"Please register first"));
@@ -411,6 +459,51 @@ class Conducttr_API {
 			curl_close($curl);
 			
 			$roles = array();
+			/* CHECK ROLES */
+			if ($this->ROLES_GROUP_ID>0){
+				sleep(4);	
+				$CONDUCTTR_REQUEST_URL = "https://api.conducttr.com/v1/project/".$this->CONDUCTTR_PROJECT_ID."/child_groups";		
+				$params = array(
+					"audience_email"=>$audience_email,
+					"root_group_id"=>$this->ROLES_GROUP_ID
+				);
+				$options = array('consumer_key' => $this->CONDUCTTR_CONSUMER_KEY, 'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET);
+				OAuthStore::instance("2Leg", $options);		
+				$req = new OAuthRequestSigner($CONDUCTTR_REQUEST_URL, "GET", $params);
+				$secrets = array(
+					'signature_methods' => array('HMAC-SHA1'),
+					'token' => $this->CONDUCTTR_ACCESS_TOKEN,
+					'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+					//'nonce' => md5(md5(date('H:i:s')).md5(time())),			
+					'nonce' => $this->makeNonce(),			
+					'timestamp' => time(),
+					'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
+					'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET
+				);
+				$req->sign(0, $secrets);
+				$signed_url = sprintf('%s?%s', $CONDUCTTR_REQUEST_URL, $req->getQueryString(false));
+				$options = array(
+					CURLOPT_HEADER => false,
+					CURLOPT_URL => $signed_url,
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_SSL_VERIFYPEER => false
+				);
+				$curl = curl_init();
+				curl_setopt_array($curl, $options);
+				$response = curl_exec($curl);  
+				if (!$response) {  
+					$response = curl_error($curl);  
+				}  
+				curl_close($curl);		
+				$groups = json_decode($response);
+							
+				$roles = array();
+				for ($i=0; $i<sizeof($groups->results);  $i++){
+					$roles[]=$groups->results[$i]->name;
+				}
+			}
+			else sleep(1);
+			
 			$st = $this->db->prepare('INSERT INTO audience (audience_email,project_id,roles) VALUES (:audience_email,:project_id,:roles)');
 			$st->bindValue(':audience_email', $audience_email, PDO::PARAM_STR);
 			$st->bindValue(':project_id', $this->CONDUCTTR_PROJECT_ID, PDO::PARAM_INT);
@@ -508,9 +601,9 @@ class Conducttr_API {
 		$CONDUCTTR_REQUEST_URL = "https://api.conducttr.com/v1/project/".$this->CONDUCTTR_PROJECT_ID."/communicator";	
 		$params = array(
 			"audience_email"=>$this->audience_email,
-			"matchphrase" =>$matchphrase,
 			"character" =>$character,
 			"type" =>$type,
+			"matchphrase" =>$matchphrase
 		);
 		$options = array('consumer_key' => $this->CONDUCTTR_CONSUMER_KEY, 'consumer_secret' => $this->CONDUCTTR_CONSUMER_SECRET);
 		OAuthStore::instance("2Leg", $options);		
@@ -667,6 +760,8 @@ class Conducttr_API {
 						$body = $value[$j][3];
 						$type = $value[$j][17];
 						$character_name = $value[$j][15];
+						/* For Voting */
+						$timestamp = str_replace(".","",substr($value[$j][0],0,11));
 
 						$count = 0; 
 						$is_question=false;
@@ -701,14 +796,24 @@ class Conducttr_API {
 							$count = 0;
 							for ($w=0;$w<sizeof($array);$w++){
 								if (!empty($array[$w])){
-									if ($array[$w][0]!="d" && $array[$w][0]!="q" && $array[$w][0]!="x" && $array[$w][0]!="g" && $array[$w][0]!="o"){
-										$count++;
-									}	
-									if (($array[$w][0]=="q" || $array[$w][0]=="x" || $array[$w][0]=="g" || $array[$w][0]=="o") && ($array[$w][1]==".")){
+									//if ($array[$w][0]!="d" && $array[$w][0]!="q" && $array[$w][0]!="w" && $array[$w][0]!="g" && $array[$w][0]!="o" && $array[$w][0]!="x" ){
+									//	$count++;
+									//}	
+									if (($array[$w][0]=="q" || $array[$w][0]=="w" || $array[$w][0]=="g" || $array[$w][0]=="o" || $array[$w][0]=="x" || $array[$w][0]=="r" || $array[$w][0]=="e" || $array[$w][0]=="b") && ($array[$w][1]==".")){
 										$is_question|=true;
+									}
+									else{
+										$count++;
+									}
+									if (($array[$w][0]=="e" ) && ($array[$w][1]==".")){
+										$array[$w]=str_replace("e.","e. [".$timestamp."] ||",$array[$w]);
+									}
+									else if (($array[$w][0]=="r" ) && ($array[$w][1]==".")){
+										$array[$w]=str_replace("r.","r. [".$timestamp."] ||",$array[$w]);
 									}
 								}
 							}
+							$parsed_body = implode("\n",$array);
 						}
 						else{
 							preg_match("/q\\./", $body, $question);
@@ -723,11 +828,10 @@ class Conducttr_API {
 							$parsed_body = preg_replace("/\|name\|/", $this->audience_first_name,$parsed_body);
 							$parsed_body = preg_replace("/\|lname\|/", $this->audience_last_name,$parsed_body);
 							$array = explode("\[",$parsed_body);
-							$array = explode("\n",$parsed_body);
 							$count = 0;
 							for ($w=0;$w<sizeof($array);$w++){
 								if (!empty($array[$w])){
-									if ($array[$w][0]!="d" && $array[$w][0]!="q" && $array[$w][0]!="x" && $array[$w][0]!="g" && $array[$w][0]!="o" ){
+									if ($array[$w][0]!="d" && $array[$w][0]!="q" && $array[$w][0]!="w" && $array[$w][0]!="g" && $array[$w][0]!="o" && $array[$w][0]!="x" ){
 										$count++;
 									}
 								}
@@ -735,29 +839,44 @@ class Conducttr_API {
 							$array = explode("\n",$parsed_body);
 							for ($w=0;$w<sizeof($array);$w++){
 								if (!empty($array[$w])){	
-									if (($array[$w][0]=="q" || $array[$w][0]=="x" || $array[$w][0]=="g" || $array[$w][0]=="0" ) && ($array[$w][1]==".")){
+									$parsed_array = preg_replace("/<\/?([a-z][a-z0-9]*)\b[^>]*>/", "\n",$array[$w]);
+
+									if (($parsed_array[$w][0]=="q" || $parsed_array[$w][0]=="w" || $parsed_array[$w][0]=="g" || $parsed_array[$w][0]=="o" || $parsed_array[$w][0]=="x" ) && ($parsed_array[$w][1]==".")){
 										$is_question|=true;
+										$array[$w]=$parsed_array[$w];
 									}
 								}
 							}
+							$parsed_body = implode("\n",$array);
+
 						}
+						//$st = $this->db->prepare('INSERT IGNORE INTO messages (id, audience_id, name, type, body, message_feed_id, character_name, question, count, unlocked) VALUES (:id, :audience_id, :name, :type, :body, :message_feed_id, :character_name, :question, :count, :unlocked)');	
 						$st = $this->db->prepare('INSERT INTO messages (id, audience_id, name, type, body, message_feed_id, character_name, question, count, unlocked) VALUES (:id, :audience_id, :name, :type, :body, :message_feed_id, :character_name, :question, :count, :unlocked) ON DUPLICATE KEY UPDATE unlocked=true');	
 						$st->bindValue(':id', $id, PDO::PARAM_STR);
 						$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 						$st->bindValue(':name',$name, PDO::PARAM_STR);
 						$st->bindValue(':message_feed_id',$message_feed_id, PDO::PARAM_INT);
 						$st->bindValue(':character_name',$character_name, PDO::PARAM_INT);
+
 						$st->bindValue(':body',$parsed_body, PDO::PARAM_STR);
 						$st->bindValue(':type',$type, PDO::PARAM_STR);
 						$st->bindValue(':question',$is_question, PDO::PARAM_BOOL);
 						$st->bindValue(':count',$count, PDO::PARAM_INT);
+						
 						$st->bindValue(':unlocked',true, PDO::PARAM_BOOL);
+
 						$st->execute();
+						//print_r($st->errorInfo());
 						$total_count+=$count;
 						if($is_question)$total_question_count++;
 
 					}
 				}
+				
+				/* REMOVE LOCKED ITEMS */
+				$st =  $this->db->prepare('DELETE FROM messages WHERE audience_id=:audience_id AND unlocked=false');
+				$st->bindValue(':audience_id', $audience_id, PDO::PARAM_INT);
+				$st->execute();
 			}
 		}
 		/* OLD CODE - Inventory Based */	
@@ -773,6 +892,7 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+				//'nonce' => md5(md5(date('H:i:s')).md5(time())),			
 				'nonce' => $this->makeNonce(),			
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
@@ -794,7 +914,6 @@ class Conducttr_API {
 			}  
 			curl_close($curl);		
 			$results = json_decode($response);
-			
 			/* UNLOCKED ITEMS */
 			$st =  $this->db->prepare('UPDATE inventory_items SET unlocked=:unlocked WHERE audience_id=:audience_id');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
@@ -856,6 +975,7 @@ class Conducttr_API {
 					}	
 					$is_question=false;
 					if ($type!="mail" && $type!="blog" ){
+						//print_r($results->results[$i]->items[$j]->body);
 						$messages_array = preg_replace("/<\/?([a-z][a-z0-9]*)\b[^>]*>/", "\n",$results->results[$i]->items[$j]->body);
 						$messages_array = preg_replace("/\n+/", "\n",$messages_array);
 						$messages_array = preg_replace("/\|name\|/", $this->audience_first_name,$messages_array);
@@ -918,7 +1038,13 @@ class Conducttr_API {
 					else{
 						$insert = true;
 					}
+					//print_r($item_roles[1]);
+					//print_r('<br>');
+					//print_r(unserialize($this->roles));
+					//print_r('<br>');
+					//echo "Insert: ".$insert;
 					if($insert){
+						//print_r('<br>Insert '.$results->results[$i]->items[$j]->name.'<br>');
 						$st = $this->db->prepare('INSERT INTO inventory_items (audience_id, inventory_name, item_name, type, body, inventory_id, question, count, unlocked) VALUES (:audience_id, :inventory_name, :item_name,:type,:body,:inventory_id, :question, :count, :unlocked) ON DUPLICATE KEY UPDATE body=:body,question=:question, count=:count, unlocked=:unlocked');
 						$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 						$st->bindValue(':inventory_name',$inventory_name, PDO::PARAM_STR);
@@ -930,8 +1056,10 @@ class Conducttr_API {
 						$st->bindValue(':count',$count, PDO::PARAM_INT);
 						$st->bindValue(':unlocked',true, PDO::PARAM_BOOL);
 						$st->execute();
+						//print_r($st->errorInfo());
 						$inventory_count += $count;
 					}
+					//else print_r('Not inserted '.$results->results[$i]->items[$j]->name.'<br>');
 				}	
 				$item_name = $results->results[$i]->items[$j]->name;
 				$st =  $this->db->prepare('UPDATE inventory_attributes SET count=:count WHERE id=:inventory_id AND audience_id=:audience_id');
@@ -993,6 +1121,8 @@ class Conducttr_API {
 	function select_message_feeds($type){	
 		/* NEW CODE - MESSAGE FEED Based */	
 		if($this->INVENTORY==false){
+			//$st = $this->db->prepare('SELECT message_feed_id, character_name, body, SUM(case when already_read=false and question=true then 1 else 0 end) AS question_count, SUM(messages.count) AS message_count, SUM(case when already_read=false then messages.count else 0 end) AS new_message_count FROM messages WHERE audience_id=:audience_id AND type=:type GROUP BY message_feed_id');
+			//$st = $this->db->prepare('SELECT message_feed_id, character_name, body, SUM(case when already_read=false and question=true and unlocked=true then 1 else 0 end) AS question_count, SUM(case when unlocked=true then messages.count else 0 end) AS message_count, SUM(case when already_read=false and unlocked=true then messages.count else 0 end) AS new_message_count FROM messages WHERE audience_id=:audience_id AND type=:type GROUP BY message_feed_id');
 			$st = $this->db->prepare('SELECT message_feed_id, character_name, body, SUM(case when already_read=false and question=true then 1 else 0 end) AS question_count, SUM(messages.count) AS message_count, SUM(case when already_read=false then messages.count else 0 end) AS new_message_count FROM messages WHERE audience_id=:audience_id AND type=:type AND unlocked=true GROUP BY message_feed_id');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->bindValue(':type', $type, PDO::PARAM_STR);
@@ -1013,6 +1143,7 @@ class Conducttr_API {
 	function select_messages($message_feed_id){	
 		/* NEW CODE - MESSAGE FEED Based */	
 		if($this->INVENTORY==false){
+			//$st = $this->db->prepare('SELECT * FROM messages WHERE audience_id = :audience_id AND message_feed_id=:message_feed_id ORDER BY messages.order ASC');
 			$st = $this->db->prepare('SELECT * FROM messages WHERE audience_id = :audience_id AND message_feed_id=:message_feed_id AND unlocked=true ORDER BY messages.order ASC');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->bindValue(':message_feed_id', $message_feed_id, PDO::PARAM_INT);
@@ -1026,6 +1157,7 @@ class Conducttr_API {
 		}
 		/* OLD CODE - Inventory Based */	
 		else {
+			//$st = $this->db->prepare('SELECT id, body, inventory_id as message_feed_id, question, already_read FROM inventory_items WHERE audience_id = :audience_id AND inventory_id=:inventory_id AND unlocked=true AND NOT (question=true AND already_read=true) ORDER BY id ASC');
 			$st = $this->db->prepare('SELECT id, body, inventory_id as message_feed_id, question, already_read FROM inventory_items WHERE audience_id = :audience_id AND inventory_id=:inventory_id AND unlocked=true ORDER BY id ASC');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->bindValue(':inventory_id', $message_feed_id, PDO::PARAM_INT);
@@ -1041,6 +1173,7 @@ class Conducttr_API {
 	}
 
 	function get_badges(){
+		
 		$CONDUCTTR_REQUEST_URL = "https://api.conducttr.com/v1/project/".$this->CONDUCTTR_PROJECT_ID."/child_groups";	
 		$params = array(
 			"audience_email"=>$this->audience_email,
@@ -1053,6 +1186,7 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+			//'nonce' => md5(md5(date('H:i:s')).md5(time())),						
 			'nonce' => $this->makeNonce(),
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
@@ -1128,6 +1262,18 @@ class Conducttr_API {
 		
 		
 		return $data;
+		/*
+		return array(
+				"audience_email"=>$this->audience_email,
+				"audience_phone"=>$this->audience_phone,
+				"audience_first_name"=>$this->audience_first_name,
+				"audience_last_name"=>$this->audience_last_name,
+				"project_id"=>$this->CONDUCTTR_PROJECT_ID,
+				"roles"=>$this->roles,
+				"profile_image"=>$this->profile_image,
+				"response"=>$response,
+		);	
+		*/
 	}
 
 	function get_stats(){
@@ -1142,6 +1288,7 @@ class Conducttr_API {
 			'signature_methods' => array('HMAC-SHA1'),
 			'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 			'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+			//'nonce' => md5(md5(date('H:i:s')).md5(time())),			
 			'nonce' => $this->makeNonce(),			
 			'timestamp' => time(),
 			'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
@@ -1165,62 +1312,41 @@ class Conducttr_API {
 		$results = json_decode($response);
 		return $results;
 	}
-	function count_messages ($type){
-		/* NEW CODE - MESSAGE FEED Based */	
+
+	function count_messages ($message_feed_id,$type){
+		// NEW CODE - MESSAGE FEED Based	
 		if($this->INVENTORY==false){
-			$st = $this->db->prepare('SELECT SUM(case when already_read=false AND unlocked=true then 1 else 0 end) AS Messages FROM messages WHERE audience_id=:audience_id and type!=:type ');
+			$st = $this->db->prepare('SELECT SUM(case when unlocked=true AND type!=:type then messages.count + messages.question else 0 end) AS count_messages_other_types, SUM(case when unlocked=true and type=:type AND message_feed_id!=:message_feed_id then messages.count + messages.question else 0 end) AS count_messages_same_type,SUM(case when unlocked=true AND message_feed_id=:message_feed_id then messages.count + messages.question else 0 end) AS count_messages_same_feed FROM messages WHERE audience_id=:audience_id ');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->bindValue(':type', $type, PDO::PARAM_STR);
+			$st->bindValue(':message_feed_id', $message_feed_id, PDO::PARAM_INT);
 			$st->execute();
 			$data=$st->fetchAll(PDO::FETCH_ASSOC);
-			if(empty($data)) return (0);
-			else {
-				if ($data[0]['Messages']!=null) return $data[0]['Messages'];
-				else return 0;
-			}
+			return $data[0];
 		}
-		/* OLD CODE - Inventory Based */	
+		// OLD CODE - Inventory Based 	
 		else {
 			$st = $this->db->prepare('SELECT SUM(case when already_read=false AND unlocked=true then 1 else 0 end) AS Messages FROM inventory_items WHERE audience_id=:audience_id and type!=:type ');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->bindValue(':type', strtolower($type), PDO::PARAM_STR);
+			//			$st->bindValue(':message_feed_id', $message_feed_id, PDO::PARAM_INT);
+
 			$st->execute();
 			$data=$st->fetchAll(PDO::FETCH_ASSOC);
-			if(empty($data)) return (0);
+			if(empty($data)){
+				return array("count_messages_same_feed"=>0,"count_messages_same_type"=>0,"count_messages_other_types"=>0);
+			}
 			else {
-				if ($data[0]['Messages']!=null) return $data[0]['Messages'];
-				else return 0;
+				if ($data[0]['Messages']!=null){
+					return array("count_messages_same_feed"=>0,"count_messages_same_type"=>0,"count_messages_other_types"=>$data[0]['Messages']);
+				}
+				else {
+					return array("count_messages_same_feed"=>0,"count_messages_same_type"=>0,"count_messages_other_types"=>0);
+				}
 			}
 		}
 	}
-	function new_count_messages ($message_feed_id,$type){
-		/* NEW CODE - MESSAGE FEED Based */	
-		if($this->INVENTORY==false){
-			$st = $this->db->prepare('SELECT SUM(case when already_read=false AND unlocked=true then 1 else 0 end) AS Messages FROM messages WHERE audience_id=:audience_id and message_feed_id!=:message_feed_id ');
-			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
-			$st->bindValue(':message_feed_id', $message_feed_id, PDO::PARAM_STR);
-			$st->execute();
-			$data=$st->fetchAll(PDO::FETCH_ASSOC);
-			if(empty($data)) return (0);
-			else {
-				if ($data[0]['Messages']!=null) return $data[0]['Messages'];
-				else return 0;
-			}
-		}
-		/* OLD CODE - Inventory Based */	
-		else {
-			$st = $this->db->prepare('SELECT SUM(case when already_read=false AND unlocked=true then 1 else 0 end) AS Messages FROM inventory_items WHERE audience_id=:audience_id and type!=:type ');
-			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
-			$st->bindValue(':type', strtolower($type), PDO::PARAM_STR);
-			$st->execute();
-			$data=$st->fetchAll(PDO::FETCH_ASSOC);
-			if(empty($data)) return (0);
-			else {
-				if ($data[0]['Messages']!=null) return $data[0]['Messages'];
-				else return 0;
-			}
-		}
-	}
+	
 	
 	function get_badges_group(){
 		if($this->BADGES_GROUP_ID!=null)
@@ -1330,7 +1456,7 @@ class Conducttr_API {
 						$count = 0; 
 						$is_question=false;
 						/* Debug */
-						/*
+						
 						echo "<b>MESSAGE ID: </b>".$id;
 						echo "<br>";
 
@@ -1348,7 +1474,7 @@ class Conducttr_API {
 						echo "<b>Character name: </b>".$character_name;
 						
 						echo "<br><br>";
-						*/
+						
 						/* Debug */
 						if ($type!="Mail" && $type!="Blog"){
 							$parsed_body = preg_replace('/\<\/div\>/',"</div>\n",$body);
@@ -1400,24 +1526,38 @@ class Conducttr_API {
 								}
 							}
 						}
+						//$st = $this->db->prepare('INSERT IGNORE INTO messages (id, audience_id, name, type, body, message_feed_id, character_name, question, count, unlocked) VALUES (:id, :audience_id, :name, :type, :body, :message_feed_id, :character_name, :question, :count, :unlocked)');	
 						$st = $this->db->prepare('INSERT INTO messages (id, audience_id, name, type, body, message_feed_id, character_name, question, count, unlocked) VALUES (:id, :audience_id, :name, :type, :body, :message_feed_id, :character_name, :question, :count, :unlocked) ON DUPLICATE KEY UPDATE unlocked=true');	
 						$st->bindValue(':id', $id, PDO::PARAM_STR);
 						$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 						$st->bindValue(':name',$name, PDO::PARAM_STR);
 						$st->bindValue(':message_feed_id',$message_feed_id, PDO::PARAM_INT);
 						$st->bindValue(':character_name',$character_name, PDO::PARAM_INT);
+
 						$st->bindValue(':body',$parsed_body, PDO::PARAM_STR);
 						$st->bindValue(':type',$type, PDO::PARAM_STR);
 						$st->bindValue(':question',$is_question, PDO::PARAM_BOOL);
 						$st->bindValue(':count',$count, PDO::PARAM_INT);
+						
 						$st->bindValue(':unlocked',true, PDO::PARAM_BOOL);
 
 						$st->execute();
+						print_r($st->errorInfo());
 						$total_count+=$count;
 						if($is_question)$total_question_count++;
 
 					}
 				}
+				/*
+				$st = $this->db->prepare('INSERT INTO message_feeds (id, audience_id, character_name, type, count, question_count) VALUES (:id, :audience_id, :character_name, :type, :count, :question_count) ON DUPLICATE KEY UPDATE count=:count,question_count=:question_count ');	
+				$st->bindValue(':id', $message_feed_id, PDO::PARAM_INT);
+				$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
+				$st->bindValue(':character_name',$character_name, PDO::PARAM_STR);
+				$st->bindValue(':type',$type, PDO::PARAM_STR);
+				$st->bindValue(':count',$total_count, PDO::PARAM_INT);
+				$st->bindValue(':question_count',$total_question_count, PDO::PARAM_INT);
+				$st->execute();
+				*/ 
 			}
 		}
 		/* OLD CODE - Inventory Based */	
@@ -1433,6 +1573,7 @@ class Conducttr_API {
 				'signature_methods' => array('HMAC-SHA1'),
 				'token' => $this->CONDUCTTR_ACCESS_TOKEN,
 				'token_secret' => $this->CONDUCTTR_ACCESS_TOKEN_SECRET,
+				//'nonce' => md5(md5(date('H:i:s')).md5(time())),			
 				'nonce' => $this->makeNonce(),			
 				'timestamp' => time(),
 				'consumer_key' => $this->CONDUCTTR_CONSUMER_KEY,
@@ -1454,7 +1595,6 @@ class Conducttr_API {
 			}  
 			curl_close($curl);		
 			$results = json_decode($response);
-			
 			/* UNLOCKED ITEMS */
 			$st =  $this->db->prepare('UPDATE inventory_items SET unlocked=:unlocked WHERE audience_id=:audience_id');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
@@ -1516,6 +1656,7 @@ class Conducttr_API {
 					}	
 					$is_question=false;
 					if ($type!="mail" && $type!="blog" ){
+						//print_r($results->results[$i]->items[$j]->body);
 						$messages_array = preg_replace("/<\/?([a-z][a-z0-9]*)\b[^>]*>/", "\n",$results->results[$i]->items[$j]->body);
 						$messages_array = preg_replace("/\n+/", "\n",$messages_array);
 						$messages_array = preg_replace("/\|name\|/", $this->audience_first_name,$messages_array);
@@ -1578,7 +1719,13 @@ class Conducttr_API {
 					else{
 						$insert = true;
 					}
+					//print_r($item_roles[1]);
+					//print_r('<br>');
+					//print_r(unserialize($this->roles));
+					//print_r('<br>');
+					//echo "Insert: ".$insert;
 					if($insert){
+						//print_r('<br>Insert '.$results->results[$i]->items[$j]->name.'<br>');
 						$st = $this->db->prepare('INSERT INTO inventory_items (audience_id, inventory_name, item_name, type, body, inventory_id, question, count, unlocked) VALUES (:audience_id, :inventory_name, :item_name,:type,:body,:inventory_id, :question, :count, :unlocked) ON DUPLICATE KEY UPDATE body=:body,question=:question, count=:count, unlocked=:unlocked');
 						$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 						$st->bindValue(':inventory_name',$inventory_name, PDO::PARAM_STR);
@@ -1590,8 +1737,10 @@ class Conducttr_API {
 						$st->bindValue(':count',$count, PDO::PARAM_INT);
 						$st->bindValue(':unlocked',true, PDO::PARAM_BOOL);
 						$st->execute();
+						//print_r($st->errorInfo());
 						$inventory_count += $count;
 					}
+					//else print_r('Not inserted '.$results->results[$i]->items[$j]->name.'<br>');
 				}	
 				$item_name = $results->results[$i]->items[$j]->name;
 				$st =  $this->db->prepare('UPDATE inventory_attributes SET count=:count WHERE id=:inventory_id AND audience_id=:audience_id');
@@ -1614,6 +1763,7 @@ class Conducttr_API {
 	function print_icons(){
 		/* NEW CODE - MESSAGE FEED Based */	
 		if($this->INVENTORY==false){
+			//$st = $this->db->prepare('SELECT Distinct type, SUM(case when audience_id=:audience_id then 1 else 0 end) as Total, SUM(case when already_read=false AND audience_id=:audience_id  then 1 else 0 end) as NotRead FROM messages WHERE audience_id=:audience_id GROUP BY type');		
 			$st = $this->db->prepare('SELECT Distinct type, SUM(case when audience_id=:audience_id AND unlocked=true then 1 else 0 end) as Total, SUM(case when already_read=false AND audience_id=:audience_id AND unlocked=true then 1 else 0 end) as NotRead FROM messages WHERE audience_id=:audience_id GROUP BY type');
 			$st->bindValue(':audience_id', $this->audience_id, PDO::PARAM_INT);
 			$st->execute();
@@ -1643,6 +1793,7 @@ if (isset($_REQUEST["action_from_conducttr"])){
 	$api = new Conducttr_API(-1);
 	
 	$possible_method = array("GET","POST", "PUT", "DELETE");
+	//$value = "An error has occurred";
 	$value = array ("Response" => "Error", "message"=>"An error has occurred");
 
 	$action=strtolower($_REQUEST["action_from_conducttr"]);
@@ -1671,6 +1822,7 @@ else if (isset($_REQUEST["action"])){
 	define('IS_AJAX', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'); 
 	if(!IS_AJAX) {
 		$result = array ("Response" => array("status"=>401,"message"=>"Access denied"));
+		//return $result;
 		exit (json_encode($result));
 
 	}
@@ -1681,6 +1833,7 @@ else if (isset($_REQUEST["action"])){
 		$api = new Conducttr_API(-1);
 
 	$possible_method = array("GET","POST", "PUT", "DELETE");
+	//$value = "An error has occurred";
 	$value = array ("Response" => "Error", "message"=>"An error has occurred");
 
 	$action=strtolower($_REQUEST["action"]);
@@ -1706,14 +1859,7 @@ else if (isset($_REQUEST["action"])){
 				$value = array ("Response" => "Error");
 			exit (json_encode($value));
 			break;	
-		case "send_gate":
-			if ( isset($_REQUEST["matchphrase"])  && isset($_REQUEST["index"]) ){		
-				$value = $api->send_gate($_REQUEST["matchphrase"],$_REQUEST["index"]);
-			}
-			else 	
-				$value = array ("Response" => "Error", "message"=>"Invalid arguments");
-			exit (json_encode($value));
-			break;				
+						
 		case "get_stats" :
 			$value = $api->get_stats();
 			exit (json_encode($value));
@@ -1815,20 +1961,13 @@ else if (isset($_REQUEST["action"])){
 		
 		case "count_messages" : 
 			if ( isset($_REQUEST["type"])) {
-				$value = $api->count_messages($_REQUEST["type"]);
+				$value = $api->count_messages($_REQUEST["message_feed_id"],$_REQUEST["type"]);
 				exit (json_encode($value));
 			}
 			else
 				exit(0);
 			break;
-		case "new_count_messages" : 
-			if ( isset($_REQUEST["message_feed_id"]) && isset($_REQUEST["type"])) {
-				$value = $api->new_count_messages($_REQUEST["message_feed_id"],$_REQUEST["type"]);
-				exit (json_encode($value));
-			}
-			else
-				exit(0);
-			break;			
+					
     }
 }
 ?>

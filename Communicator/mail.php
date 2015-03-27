@@ -14,11 +14,13 @@ else{
 		$audience_first_name = " ".$value[0]['audience_first_name']." ";
 		$audience_last_name = $value[0]['audience_last_name'];
 		$project_id = $value[0]['project_id'];
+		$delay =$api->get_delay();
 	}
 	else{
 		$profile_image = 'styles/'.$_SESSION['PROJECT_ID'].'/profiles/you.png';
 		$audience_first_name = 'You';
 		$project_id = $_SESSION['PROJECT_ID'];	
+		$delay =3000;
 	}
 } 
 ?>
@@ -44,6 +46,9 @@ else{
 		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="js/spin.min.js"></script>
 		<script type="text/javascript" src="js/communicator.js"></script>
+		<script type="text/javascript" src="js/patternLock.min.js"></script>		
+		<script type="text/javascript" src="js/date.js"></script>	
+
 		<script type="text/javascript" src="js/preventOverScroll.js"></script>		
 
 		<script>
@@ -51,15 +56,17 @@ else{
 			var PROJECT_ID = '<?php echo $project_id;?>';
 			var PROFILE_IMAGE = '<?php echo $profile_image;?>';
 			var AUDIENCE_FIRST_NAME = '<?php echo $audience_first_name;?>';
+			var DELAY = '<?php echo $delay;?>';
+
 			var type = 'Mail';
 		</script>
 	</head>
 	<body>
 		<div id="mail-wrapper" class="wrapper" >
 			<div class="header" id="mail-header"> 
-				<a title="Back button" href="#" onclick="back();return false;" style="left:26px;top: 0;bottom: 0;margin: auto;position:absolute;overflow:auto;width: 36px; height: 36px;z-index: 1;"><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/mail_back.png"></a>
+				<a id='back' title="Back button" href="#" onclick="back();return false;" ><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/mail_back.png"></a>
 				<div style="height:65%;position: absolute;top: 0;left: 0;bottom: 0;right: 0;margin:auto;" ><img src='<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/mail_nohex.png' style="height:100%;"><img src='<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/mail_logo.png' style="height:100%;" ></div>
-				<a id='home' title="Home button" href="desktop.php" style="right:26px;top: 0;bottom: 0;margin: auto;position:absolute;width:30px; height:30px;z-index: 1;"><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/home.png"></a>
+				<a id='home' title="Home button" href="desktop.php" ><img src="<?php echo "styles/".$_SESSION['PROJECT_ID']; ?>/images/home.png"></a>
 			</div>
 			<div id="spinner"></div>
 

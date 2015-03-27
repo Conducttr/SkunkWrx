@@ -11,83 +11,7 @@ var typing_interval;
 var question_height;
 var	message_count = 0;
 var spinner;
-
-var gate = [];
-var gate_index = -1;
-
-var selected=false;
-var CHARACTER_NAME;
-var waitingForAnswer=false;
-
-
-$(document).ready(function(){
-	var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
-	
-	if( iOS ){
-		question_height=8;
-		document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
-		var scroller = document.getElementById('content-area');
-		preventOverScroll(scroller);
-	}
-	else question_height=5.5;
-	
-	/* Push Notifications */
-	setInterval(function(){ 
-		if(selected){
-			$.ajax({
-				type: "GET",
-				url: "api.php",
-				data: {  
-					'action': 'check_push_notifications',
-					'message_feed_id': message_feed_id
-				},
-				dataType: "json",
-				success: function(data){
-
-					messages_array = [];
-					index_array = [];
-					if(data!=null && type =='mail'){
-						$(".mail").find('.mail_body').hide();
-					}	
-					//if (data.length>0){
-					if (true){
-						messages_to_array(data);
-						if(type=="Msngr") Array_print(messages_array,DELAY);	
-						else Array_print(messages_array,3000);	
-						$.ajax({
-							type: "GET",
-							url: "api.php",
-							data: {  
-							'action': 'count_messages',
-							'type': type,
-							},
-							dataType: "json",
-							success: function(data){
-								if (data>message_count){
-									$('#home').prepend("<div class='dot'></div>");
-									var notification = $('#notification')[0]; 
-									notification.play();    
-									navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
-									if (navigator.vibrate) {
-										navigator.vibrate(1000);
-									}
-								}
-								message_count=data;
-							},
-							error:function(data){
-							   console.log("ERROR: " + JSON.stringify(data));
-							}
-						});
-					}				
-				},
-				error:function(data){
-				   console.log("ERROR: " + JSON.stringify(data));
-				}
-			});
-		}
-	}, 30000);
-	
-	var opts = {
+var opts = {
 		lines: 13, // The number of lines to draw
 		length: 20, // The length of each line
 		width: 10, // The line thickness
@@ -105,7 +29,174 @@ $(document).ready(function(){
 		top: '50%', // Top position relative to parent
 		left: '50%' // Left position relative to parent
 	};
-	var target = document.getElementById('spinner');
+var target;	
+
+var selected=false;
+var still_printing = false;
+var CHARACTER_NAME;
+var count_messages_same_feed  = 0;
+var count_messages_same_type = 0;
+var count_messages_other_types = 0;
+
+$(document).ready(function(){
+	var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+	
+	if( iOS ){
+		question_height=8;
+		document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
+		var scroller = document.getElementById('content-area');
+		preventOverScroll(scroller);
+	}
+	else question_height=5.5;
+	
+	/* Push Notifications */
+	/*
+	setInterval(function(){
+		console.log("still_printing_step_1 "+still_printing);
+		if(!still_printing){
+			$.ajax({
+				type: "GET",
+				url: "api.php",
+				data: {  
+				'action': 'count_messages',
+				'type': type,
+				'message_feed_id':message_feed_id,
+				},
+				dataType: "json",
+				success: function(data){
+					if(!still_printing && selected){
+						if (data.count_messages_same_feed>count_messages_same_feed){
+							console.log("New Messages in the feed");
+							$.ajax({
+								type: "GET",
+								url: "api.php",
+								data: {  
+									'action': 'check_push_notifications',
+									'message_feed_id': message_feed_id
+								},
+								dataType: "json",
+								success: function(data){
+									console.log("still_printing_step_3 "+still_printing);
+
+									if(!still_printing && selected){
+										still_printing=true;
+										if(data!=null && type =='mail'){
+											$(".mail").find('.mail_body').hide();
+										}	
+										console.log(data);
+										messages_to_array(data);
+										Array_print(messages_array,DELAY);
+									}
+								}
+							});
+						}
+						
+						if (data.count_messages_same_type>count_messages_same_type){
+							console.log("New Messages in the channel");
+
+							$('#back').prepend("<div class='dot'></div>");
+							var notification = $('#notification')[0]; 
+							notification.play();    
+							navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+							if (navigator.vibrate) {
+								navigator.vibrate(1000);
+							}
+						}
+						
+						
+						if (data.count_messages_other_types > count_messages_other_types){
+							
+							console.log("New Messages in the app");
+							$('#home').prepend("<div class='dot'></div>");
+							var notification = $('#notification')[0]; 
+							notification.play();    
+							navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+							if (navigator.vibrate) {
+								navigator.vibrate(1000);
+							}
+						}				
+						count_messages_same_feed=data.count_messages_same_feed;
+						count_messages_same_type=data.count_messages_same_type;
+						count_messages_other_types=data.count_messages_other_types;
+						
+						//Debug
+						console.log("same_feed: "+count_messages_same_feed);
+						console.log("same_type: "+count_messages_same_type);
+						console.log("other types: "+count_messages_other_types);
+					}
+									
+					else if(!still_printing && !selected){
+						if (data.count_messages_same_type>count_messages_same_type){
+							console.log("New Messages in the channel");
+
+							$.ajax({
+								type: "GET",
+								url: "api.php",
+								data: {  
+									'action': 'select_message_feeds',
+									'type': type,
+								},
+								dataType: "json",
+								success: function(data){
+									console.log(data);
+									if (typeof data !== 'undefined' && data.length > 0) {
+										$('#content-area').empty();
+										feeds_array = data;
+										message_feeds_to_array(data);
+									}
+									else {
+										var msg  = ' No messages';
+										switch (type){
+											case "Mail": 
+												msg="There aren't any emails ";
+												break;
+											case "Msngr":
+												msg="There aren't any conversations  ";
+												break;
+											default:
+												msg= "There isn't any content ";
+										}		
+										$("#content-area").append('<div style="font-weight:bold;text-align:center">'+msg+'</div>');
+										spinner.stop();
+									}	
+								},
+								error:function(data){
+									console.log("ERROR: " + JSON.stringify(data));
+									spinner.stop();
+						  
+								}
+							});
+							
+						}
+						if (data.count_messages_other_types > count_messages_other_types){
+							
+							console.log("New Messages in the app");
+							$('#home').prepend("<div class='dot'></div>");
+							var notification = $('#notification')[0]; 
+							notification.play();    
+							navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+							if (navigator.vibrate) {
+								navigator.vibrate(1000);
+							}
+						}				
+						count_messages_same_feed=data.count_messages_same_feed;
+						count_messages_same_type=data.count_messages_same_type;
+						count_messages_other_types=data.count_messages_other_types;
+						
+						console.log("same_feed: "+count_messages_same_feed);
+						console.log("same_type: "+count_messages_same_type);
+						console.log("other types: "+count_messages_other_types);
+					}
+				},
+				error:function(data){
+				   console.log("ERROR: " + JSON.stringify(data));
+				}
+			})
+		}
+	}, 10000);
+	*/
+	
+	target = document.getElementById('spinner');
 	spinner = new Spinner(opts).spin(target);	
 	
 		
@@ -118,6 +209,7 @@ $(document).ready(function(){
 		},
 		dataType: "json",
 		success: function(data){
+			console.log(data);
 			if (typeof data !== 'undefined' && data.length > 0) {
 				feeds_array = data;
 				message_feeds_to_array(data);
@@ -144,8 +236,36 @@ $(document).ready(function(){
   
 		}
 	});
+	$.ajax({
+		type: "GET",
+		url: "api.php",
+		data: {  
+		'action': 'count_messages',
+		'type': type,
+		'message_feed_id':message_feed_id,
+		},
+		dataType: "json",
+		success: function(data){
+			count_messages_same_feed=data.count_messages_same_feed;
+			count_messages_same_type=data.count_messages_same_type;
+			count_messages_other_types=data.count_messages_other_types;
+			
+			/* Debug */
+			/*
+			console.log("First Count");
+			console.log("same_feed: "+count_messages_same_feed);
+			console.log("same_type: "+count_messages_same_type);
+			console.log("other types: "+count_messages_other_types);
+			*/
+		},
+		error:function(data){
+		   console.log("ERROR: " + JSON.stringify(data));
+		}
+	})
 });	
+		
 function SendAnswer(matchphrase,index){
+	$("#send-message-area").removeClass("send-message-area-displayed");
 	$("#send-message-area").empty();
 	$("#send-message-area").append('<div id="typing-area"><span id="typing"></span><span id="dot"></span></div>');
 	var loading_text= "Loading ";
@@ -159,6 +279,7 @@ function SendAnswer(matchphrase,index){
 		default:
 			loading_text= "Loading ";
 	}
+
 	setTimeout(function(){document.getElementById('typing').innerHTML=loading_text;},500);
 	var dot_area = document.getElementById('dot');
 
@@ -174,7 +295,9 @@ function SendAnswer(matchphrase,index){
 			'matchphrase' : matchphrase,
 			'character' : CHARACTER_NAME,
 			'type' : type,
-			'index' : index
+			'index' : index,
+			'message_feed_id':message_feed_id
+
 			},
 		dataType: "json",
 		success: function(data){
@@ -204,17 +327,42 @@ function SendAnswer(matchphrase,index){
 						type: "GET",
 						url: "api.php",
 						data: {  
-							'action': 'count_messages',
-							'type': type,
+						'action': 'count_messages',
+						'type': type,
+						'message_feed_id':message_feed_id,
 						},
 						dataType: "json",
 						success: function(data){
-							if (data>message_count){
+
+							if (data.count_messages_same_type>count_messages_same_type){
+								$('#back').prepend("<div class='dot'></div>");
+								var notification = $('#notification')[0]; 
+								notification.play();    
+								navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+								if (navigator.vibrate) {
+									navigator.vibrate(1000);
+								} 
+							}
+							if (data.count_messages_other_types>count_messages_other_types){
 								$('#home').prepend("<div class='dot'></div>");
 								var notification = $('#notification')[0]; 
 								notification.play();    
-							}
-							message_count=data;
+								navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+								if (navigator.vibrate) {
+									navigator.vibrate(1000);
+								}
+							}				
+							count_messages_same_feed=data.count_messages_same_feed;
+							count_messages_same_type=data.count_messages_same_type;
+							count_messages_other_types=data.count_messages_other_types;
+							/* Debug */
+							/*
+							console.log("Update counters by refresh");
+							console.log("same_feed: "+count_messages_same_feed);
+							console.log("same_type: "+count_messages_same_type);
+							console.log("other types: "+count_messages_other_types);
+							*/
+
 						},
 						error:function(data){
 						   console.log("ERROR: " + JSON.stringify(data));
@@ -230,7 +378,8 @@ function SendAnswer(matchphrase,index){
 			console.log("ERROR: " + JSON.stringify(data));
 		}
 	});
-}
+}		
+
 function message_feeds_to_array(JSONobject){
 	var message_count = 0;
 	var question_count = 0;
@@ -245,7 +394,6 @@ function message_feeds_to_array(JSONobject){
 		for (var i=0; i<JSONobject.length;i++){
 			messages_array[i] = [];
 			index_array[i] = JSONobject[i].message_feed_id;
-			
 			/* Find tagline */
 			var regExp = /\[(.*?)\]/;			
 			var names = regExp.exec(JSONobject[i].character_name);
@@ -261,7 +409,7 @@ function message_feeds_to_array(JSONobject){
 				myIndex++;
 				if (myIndex<last_body.length){
 					if (last_body[myIndex]!=""){	
-						if(last_body[myIndex].trim()[0] != "" && last_body[myIndex].trim()[0] != "d" && last_body[myIndex].trim()[0] != "o" && last_body[myIndex].trim()[0] != "q" && last_body[myIndex].trim()[0] != "x" ){
+						if(last_body[myIndex].trim()[0] != "" && last_body[myIndex].trim()[0] != "d" && last_body[myIndex].trim()[0] != "o" && last_body[myIndex].trim()[0] != "q" ){
 							found=true;
 						}
 					}
@@ -269,13 +417,22 @@ function message_feeds_to_array(JSONobject){
 				else found=true;
 			}		
 			if(myIndex<last_body.length)  var tagline = last_body[myIndex].trim().slice(2).replace(/\[(.*?)\]/g, "");
-			
+			else if(type=="Blog" || type=="Mail") var tagline = "";
 			else var tagline = "" ;
 			
-			if (type!='blog')
+			tagline=tagline.slice(0,40);
+			tagline+="...";
+			if(type=='Blog' && PROJECT_ID=='2993'){
+				$("#content-area").append('<div class="blog_wrapper" onClick="select('+JSONobject[i].message_feed_id+','+i+');"><header><span>'+character_name+'</span> </header><div class="content" style="background:url(styles/'+PROJECT_ID+'/episodes/episode_'+(i+1)+'.jpg);background-size:cover;">'+ character_name +'</div></div>');
+			}
+			else if(type=="Blog" || type=="Mail"){
+				//$("#content-area").append('<div class="blog_wrapper" onClick="select('+JSONobject[i].message_feed_id+','+i+');"><header><span>'+character_name+'</span> </header><div class="content" style="background:url(styles/'+PROJECT_ID+'/episodes/episode_'+(i+1)+'.jpg);background-size:cover;"><div></div>');
+				$("#content-area").append('<div class="feed" onClick="select('+JSONobject[i].message_feed_id+','+i+');"><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+character_name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="feed_name" >'+character_name+'</div><div class="feed_tagline"></div><div class="feed_notifications">' + JSONobject[i].message_count +' Messages <br>' + JSONobject[i].new_message_count +' New messages <br> '+JSONobject[i].question_count+' Response pending</div></div></div>');
+			}
+
+			else {
 				$("#content-area").append('<div class="feed" onClick="select('+JSONobject[i].message_feed_id+','+i+');"><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+character_name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="feed_name" >'+character_name+'</div><div class="feed_tagline">'+ tagline+'</div><div class="feed_notifications">' + JSONobject[i].message_count +' Messages <br>' + JSONobject[i].new_message_count +' New messages <br> '+JSONobject[i].question_count+' Response pending</div></div></div>');
-			else 
-				$("#content-area").append('<div class="blog_wrapper" onClick="select('+i+');"><header><span>'+character_name+'</span> </header><div class="content" style="background:url(styles/'+PROJECT_ID+'/episodes/episode_'+(i+1)+'.jpg);background-size:cover;">'+ tagline+'</div></div>');
+			}
 		}
 		spinner.stop();
 	}
@@ -285,6 +442,9 @@ function messages_to_array(JSONobject){
 	var question_count;
 	messages_array = [];
 	index_array = [];
+	//console.log("MAIL: ");
+	//console.log(JSONobject);
+
 	switch (type.toLowerCase()){
 		case "blog":
 		case "mail":
@@ -337,8 +497,7 @@ function messages_to_array(JSONobject){
 				if($.inArray(JSONobject[i].id, messages_id_array)==-1){
 					messages_id_array.push(JSONobject[i].id);
 					var unlocked_items =  JSONobject[i].body;
-					var stream =  unlocked_items.replace(/\t/g, "");
-					stream = stream.split("\n");
+					var stream = unlocked_items.split("\n");
 					for(var k = 0; k < stream.length; k++){
 						if(stream[k].length>0 ){
 							messages_array.push(stream[k]);
@@ -354,22 +513,38 @@ function messages_to_array(JSONobject){
 	
 function Array_print(messages, delay){
 	var count_index = 0;
+	still_printing=true;
 	unfolding_interval = setInterval(function() {
-		if (messages.length<=0)return "Done";
+		
+		if (messages.length<=0){
+			clearInterval(unfolding_interval);
+			still_printing=false;
+			return "Done";
+		}
+		if (selected!=true){
+			clearInterval(unfolding_interval);
+			still_printing=false;
+			return "Done";
+		}
 		count_index++;
 		index=index_array.shift();
 		message=messages.shift().trim();
 		question=question_array.shift().trim();
-
+		
+	
+		if ((message[0]== "q" || message[0]== "o" || message[0]=="x" || message[0]=="b" || message[0]=="r"  || message[0]=="e")&& message[1]== "." && question!=true){	
+			$('#send-message-area').empty();
+		}
 		//Questions - Fixed answers
-		if (message[0]== "q" && question!=true){	
+		if (message[0]== "q" && message[1]== "." && question!=true){	
 			var questions = message.slice(2);
 			questions = questions.split("||");
 			var number_of_questions = question_height*questions.length;
 			$('#content-area').height(84-number_of_questions+"%");
 			$('#send-message-area').height(number_of_questions+"%");
+			//$("#content-area").append('<div class="message_wrapper"></div>');
 			$("#send-message-area").append('<div class="answer-divider"></div>');
-			$('#send-message-area').hide();
+			//$('#send-message-area').hide();
 			for(var j= 0; j < questions.length; j++){
 				var regExp = /\[(.*?)\]/;
 				var names = regExp.exec(questions[j]);
@@ -381,7 +556,7 @@ function Array_print(messages, delay){
 			}
 		}
 		//Questions - Open Input
-		else if (message[0]== "o" && question!=true){
+		else if (message[0]== "o" && message[1]== "." && question!=true){
 			var openText = message.slice(2);	
 		
 			var regExp = /\[(.*?)\]/;
@@ -390,8 +565,14 @@ function Array_print(messages, delay){
 			if (names != null){
 				prompt = names[1];
 			}
+			$("#send-message-area").addClass("send-message-area-displayed");
+			$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;height:88%;padding-bottom:0px;padding-top: 4px;" ><form id="opentextform"><input id="openTextInput" type="text" placeholder="'+names[1]+' " value="" autofocus  onfocus="this.value = this.value;"><button id="openTextButton" index="'+index+'" ></button></form></div>');
 			
-			$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;height:88%;padding-bottom:0px;padding-top: 4px;" ><input id="openTextInput" type="text" style="width:85%;height:70%;float:left;padding: 2px;" placeholder="." value="'+names[1]+' " autofocus  onfocus="this.value = this.value;"><button id="openTextButton" index="'+index+'" style="width:10%;height:75%;float:right;"></button></div>');
+			var form = document.getElementById("opentextform");
+			form.onsubmit = function(){
+				$("#openTextInput").click();
+				return false;
+			};
 			$( "#openTextButton" ).click(function() {
 				var matchphrase = $( "#openTextInput" ).val();
 				matchphrase=matchphrase.replace(names[1],"");
@@ -405,14 +586,13 @@ function Array_print(messages, delay){
 		}
 		
 		/* Unlocking pattern */
-		else if (message[0]== "x" && question!=true){
+		else if (message[0]== "x" && message[1]== "." && question!=true){
 			var pattern = message.slice(2);						
 			var options = pattern.split(",");
-			console.log(options);
-			
-			var patternValue = options[0];
-			var seconds_to_fade = options[1];
-			var seconds_to_solve = options[2];
+			var patternMatchphrase = options[0];
+			var patternValue = options[1];
+			var seconds_to_fade = options[2];
+			var seconds_to_solve = options[3];
 			var margin = 15;
 			var radius = 10;
 			var matrix_rows = 3;
@@ -425,8 +605,9 @@ function Array_print(messages, delay){
 			$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;background: #3382c0;height:100%;padding-top:0;padding-bottom:0;" ><div id="patternContainer" style="margin:auto" value="123" index="'+index+'" ></div></div>');
 			$("#send-message-area").append('<div class="message_wrapper></div>');
 
-			$('#content-area').height(86-pattern_height+"%");
+			$('#content-area').height(81-pattern_height+"%");
 			$('#send-message-area').height(pattern_height+"%");
+
 			var lock;
 			
 			lock = new PatternLock('#patternContainer',{
@@ -434,46 +615,220 @@ function Array_print(messages, delay){
 				margin:margin,
 				radius:radius,
 				matrix: [matrix_rows,matrix_columns]
-			});
-			
-			
+			});	
 			lock.setPattern(patternValue);
 			waitingForAnswer=true;
-			
 			setTimeout(function(){ lock.reset(); }, seconds_to_fade);
-			
 			setTimeout(function(){ 
-				console.log("waitingForAnswer: "+waitingForAnswer);
-
 				if(waitingForAnswer==true){
-					console.log("waitingForAnswer: "+waitingForAnswer);
-					$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center">Pattern failed</div>');
-					SendAnswer("patternIncorrectbyTime",index);
+					SendAnswer(patternMatchphrase+" 0000",index);
 				}
 				else {
-					console.log("waitingForAnswer: "+waitingForAnswer);
-					console.log("time is up");
 				}
-
 			}, seconds_to_solve);
 			
 			lock.checkForPattern(parseInt(patternValue),function(){
-				console.log("The drawn pattern "+lock.getPattern());
-				console.log("The one that was set "+patternValue);
-
 				waitingForAnswer=false;
-				$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center">Pattern correct</div>');
-
-				SendAnswer("patternCorrect",index);
+				SendAnswer(patternMatchphrase+" "+lock.getPattern(),index);
 			},function(){
-				console.log("The drawn pattern "+lock.getPattern());
-				console.log("The one that was set "+patternValue);
 				waitingForAnswer=false;
-				$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center">Pattern incorrect</div>');
+				SendAnswer(patternMatchphrase+" "+lock.getPattern(),index);
 
-				SendAnswer("patternIncorrect",index);
 			});  
-		} 
+		}
+		
+		// Progress Bar -  Time  Question	
+		else if (message[0]== "b" && message[1]== "." && question!=true){
+			
+			var questions = message.slice(2);
+			questions = questions.split("||");
+			
+			var number_of_questions = question_height*questions.length;
+			
+			var regExp = /\[(.*?)\]/;
+			
+			var parameters = regExp.exec(questions[0])[1].split(",");
+			var timeout_matchphrase = parameters[0];
+			
+			var time = parameters[1].split(":");
+			var seconds = 0;
+			var multiplier= 1;
+			for (var t=time.length-1; t>=0;t--){
+				seconds+=time[t]*multiplier;
+				multiplier*=60;
+			}
+			
+
+			$('#content-area').height(84-number_of_questions+"%");
+			$('#send-message-area').height(number_of_questions+"%");
+			$("#send-message-area").append('<div class="answer-divider"></div>');
+			$('#send-message-area').hide();
+			for(var j= 1; j < questions.length; j++){
+				
+				var names = regExp.exec(questions[j]);
+				if (names != null){
+					questions[j] = questions[j].replace(/\[(.*?)\]/g, "");
+					$("#send-message-area").append('<button class="answer" name="'+questions[j].trim()+'" value="'+names[1]+'" onClick="SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+questions[j].trim()+'</button>');
+					$("#send-message-area").append('<div class="answer-divider"></div>');
+					
+				}
+			}
+			$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
+			var count=0;
+			var bar_width=0;
+			reactionInterval = setInterval(function() {
+				bar_width = 100 -((count*100)/seconds);
+				console.log(bar_width);
+				$("#bar").width(bar_width+"%");
+				document.getElementById("progressbar_text").innerHTML = seconds-count;	
+				if(count>=seconds || bar_width<=0){
+					console.log("Finished");
+					clearInterval(reaction_interval);
+					SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+				}	
+				else count++;
+			},1000);
+
+		}
+		// Voting with expiration time
+		else if (message[0]== "r" && message[1]== "." && question!=true){
+			var parameters = message.slice(2).split("||");
+			console.log(parameters);
+
+			var starting_time = parameters[0];
+			
+			var regExp = /\[(.*?)\]/;
+			var starting_time = regExp.exec(starting_time);
+			if (starting_time != null){
+				starting_time_seconds = parseInt(starting_time[1]);
+			}
+		
+			var ending_time = parameters[1];
+			var ending_time = regExp.exec(ending_time);
+			if (ending_time != null){
+				timeout_matchphrase = ending_time[1].split(",")[0];
+				
+				var time = ending_time[1].split(",")[1].split(":");
+				var ending_time_seconds = 0;
+				var multiplier= 1;
+				for (var t=time.length-1; t>=0;t--){
+					ending_time_seconds+=time[t]*multiplier;
+					multiplier*=60;
+				}
+				console.log("Seconds: "+ ending_time_seconds);
+				ending_time_seconds = ending_time_seconds+starting_time_seconds;
+				
+				console.log("Starting Time: "+ starting_time_seconds);
+				
+				console.log("Ending Time: "+ ending_time_seconds);
+
+			}
+			voting_period = ending_time_seconds-starting_time_seconds;
+			console.log("Voting Time: "+ voting_period);
+
+			var right_now  = Math.round(+new Date()/1000);
+			var count  = right_now-starting_time_seconds;
+			var remaining =ending_time_seconds-right_now;
+
+			if((remaining>0)&&(count<ending_time_seconds)){
+				//Questions
+				var number_of_questions = question_height*(parameters.length-1);
+				$('#content-area').height(84-number_of_questions+"%");
+				$('#send-message-area').height(number_of_questions+"%");
+				$("#send-message-area").append('<div class="answer-divider"></div>');
+				for(var j= 2; j < parameters.length; j++){
+					var regExp = /\[(.*?)\]/;
+					var names = regExp.exec(parameters[j]);
+					if (names != null){
+						parameters[j] = parameters[j].replace(/\[(.*?)\]/g, "");
+						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(votingInterval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
+						$("#send-message-area").append('<div class="answer-divider"></div>');
+					}
+				}
+				$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
+				votingInterval = setInterval(function() {			
+					bar_width = (count*100)/voting_period;
+					$("#bar").width(bar_width+"%");
+					var seconds_remaining = voting_period-count; 
+					var hours = Math.floor(seconds_remaining / (60 * 60));
+					var divisor_for_minutes = seconds_remaining % (60 * 60);
+					var minutes = Math.floor(divisor_for_minutes / 60);
+					var divisor_for_seconds = divisor_for_minutes % 60;
+					var secs = Math.ceil(divisor_for_seconds);
+					if (hours < 10) {hours = "0"+hours;}
+					if (minutes < 10) {minutes = "0"+minutes;}
+					if (secs < 10) {secs = "0"+secs;}
+					document.getElementById("progressbar_text").innerHTML = hours+":"+minutes+":"+secs;	
+					if(count>=ending_time_seconds || bar_width<=0){
+						clearInterval(votingInterval);
+						SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+					}	
+					else count++;
+				},1000);
+			}
+		}
+		// Question with expiration date
+		else if (message[0]== "e" && message[1]== "." && question!=true){
+			
+			var parameters = message.slice(2).split("||");
+			var starting_time = parameters[0];
+			
+			var regExp = /\[(.*?)\]/;
+			var starting_time = regExp.exec(starting_time);
+			if (starting_time != null){
+				starting_time_seconds = starting_time[1];
+			}
+		
+			var ending_time = parameters[1];
+			var ending_time = regExp.exec(ending_time);
+			if (ending_time != null){
+				timeout_matchphrase = ending_time[1].split(",")[0];
+				ending_time_seconds = ending_time[1].split(",")[1];
+				ending_time_seconds = Date.parse(ending_time_seconds).getTime()/1000
+			}
+			voting_period = ending_time_seconds-starting_time_seconds;
+			var right_now  = Math.round(+new Date()/1000);
+			var count  = right_now-starting_time_seconds;
+			var remaining =ending_time_seconds-right_now;
+
+
+			if((remaining>0)&&(count<ending_time_seconds)){
+				//Questions
+				var number_of_questions = question_height*(parameters.length-1);
+				$('#content-area').height(84-number_of_questions+"%");
+				$('#send-message-area').height(number_of_questions+"%");
+				$("#send-message-area").append('<div class="answer-divider"></div>');
+				for(var j= 2; j < parameters.length; j++){
+					var regExp = /\[(.*?)\]/;
+					var names = regExp.exec(parameters[j]);
+					if (names != null){
+						parameters[j] = parameters[j].replace(/\[(.*?)\]/g, "");
+						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(votingInterval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
+						$("#send-message-area").append('<div class="answer-divider"></div>');
+					}
+				}
+				$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
+				votingInterval = setInterval(function() {			
+					bar_width = (count*100)/voting_period;
+					$("#bar").width(bar_width+"%");
+					var seconds_remaining = voting_period-count; 
+					var hours = Math.floor(seconds_remaining / (60 * 60));
+					var divisor_for_minutes = seconds_remaining % (60 * 60);
+					var minutes = Math.floor(divisor_for_minutes / 60);
+					var divisor_for_seconds = divisor_for_minutes % 60;
+					var secs = Math.ceil(divisor_for_seconds);
+					if (hours < 10) {hours = "0"+hours;}
+					if (minutes < 10) {minutes = "0"+minutes;}
+					if (secs < 10) {secs = "0"+secs;}
+					document.getElementById("progressbar_text").innerHTML = hours+":"+minutes+":"+secs;	
+					if(count>=ending_time_seconds || bar_width<=0){
+						clearInterval(votingInterval);
+						SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+					}	
+					else count++;
+				},1000);
+			}
+		}
 		else{
 			switch (type){
 				//GoSocial - Fakebook //		
@@ -483,14 +838,21 @@ function Array_print(messages, delay){
 						case "t":
 						case "p":
 							var post = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
+							var regExp = /\[(.*?)\]/;							
 							var names = regExp.exec(post);
+							var name = "";
 							if (names != null){
 								post = post.replace(/\[(.*?)\]/g, "");
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-							} 
-							else var name ="";
-
+								if (names[1] ==  "You") {
+									if (AUDIENCE_FIRST_NAME =='')
+										var	name = 'You';
+									else
+										var	name = AUDIENCE_FIRST_NAME;
+								}
+								else{
+									name=names[1];
+								}
+							}
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
 							var images = regExp.exec(post);
 							if (images != null){
@@ -507,11 +869,20 @@ function Array_print(messages, delay){
 							var post = message.slice(2);							
 							var regExp = /\[(.*?)\]/;
 							var names = regExp.exec(post);
+							var names = regExp.exec(post);
+							var name = "";
 							if (names != null){
 								post = post.replace(/\[(.*?)\]/g, "");
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-							} 
-							else var name ="";
+								if (names[1] ==  "You") {
+									if (AUDIENCE_FIRST_NAME =='')
+										var	name = 'You';
+									else
+										var	name = AUDIENCE_FIRST_NAME;
+								}
+								else{
+									name=names[1];
+								}
+							}
 
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
 							var images = regExp.exec(post);
@@ -579,24 +950,20 @@ function Array_print(messages, delay){
 							var comment = message.slice(2);							
 							var regExp = /\[(.*?)\]/;
 							var names = regExp.exec(comment);
-							/*
+							var name = "";
 							if (names != null){
-								comment = comment.replace(/\[(.*?)\]/g, "");
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-							} 
-							*/
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1).trim();
-								if (name ==  "You") {
-									var IMAGE_SRC='styles/'+PROJECT_ID+'/'+PROFILE_IMAGE;
+								comment =comment.replace(/\[(.*?)\]/g, "");
+								if (names[1] ==  "You") {
 									if (AUDIENCE_FIRST_NAME =='')
-										name = 'You';
+										var	name = 'You';
 									else
-										name = AUDIENCE_FIRST_NAME;
+										var	name = AUDIENCE_FIRST_NAME;
+									IMAGE_SRC=PROFILE_IMAGE;
 								}
-								else var IMAGE_SRC = 'styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png';
+								else{
+									name=names[1];
+								}
 							}
-							else var name ="";
 							comment = comment.replace(/\[(.*?)\]/g, name);
 
 							if (messages.length>1){
@@ -646,10 +1013,20 @@ function Array_print(messages, delay){
 							var tuit = message.slice(2);							
 							var regExp = /\[(.*?)\]/;
 							var names = regExp.exec(tuit);
+							var name = "";
 							if (names != null){
 								tuit = tuit.replace(/\[(.*?)\]/g, "");
-							} 	
-							$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+names[1].toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+names[1]+'</span><span class="screenname"> @'+names[1]+'</span><div class="tuit_content">'+tuit+'</div></div>');
+								if (names[1] ==  "You") {
+									if (AUDIENCE_FIRST_NAME =='')
+										var	name = 'You';
+									else
+										var	name = AUDIENCE_FIRST_NAME;
+								}
+								else{
+									name=names[1];
+								}
+							}
+							$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><span class="screenname"> @'+name+'</span><div class="tuit_content">'+tuit+'</div></div>');
 							break;
 						//Tweet with image	
 						case "i":
@@ -720,7 +1097,7 @@ function Array_print(messages, delay){
 						}
 					break;
 
-				//Msngr //
+				//Msngr - WhatsUp //
 				case "Msngr":
 					switch (message[0]){
 						//Conversation
@@ -738,6 +1115,7 @@ function Array_print(messages, delay){
 							var message_content = '<div class="message_wrapper" ><img class="profile_photo"  src="';
 							
 							if (name ==  "You") {
+
 								var POSITION = 'right';
 								var IMAGE = 'styles/'+PROJECT_ID+'/'+PROFILE_IMAGE;
 								if (AUDIENCE_FIRST_NAME =='')
@@ -872,7 +1250,7 @@ function Array_print(messages, delay){
 								video = video.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
 								video = video.trim();
 								var html_video = "https://www.youtube.com/embed/"+videos[1];
-								html_video = html_video+"?showinfo=0&controls=0&autohide=1";
+								html_video = html_video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
 								html_message+=video+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" src="'+html_video+'"  frameborder="0" ></iframe></div></div></div>';										
 							}
 							else html_message+=video+'</div></div>';
@@ -893,12 +1271,13 @@ function Array_print(messages, delay){
 							today = curr_date + " " + m_names[curr_month] + " " + curr_year;
 							date = date.replace("|today|", today);							
 
-							$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center">'+date+'</div>');
+							$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center"><div class="date>"'+date+'</div></div>');
 							break;	
-	
+								
+						
 						}
-					break;			
-				
+						
+					break;	
 				case "Blog":
 					var email = message;							
 					var regExp = /\[(.*?)\]/;
@@ -935,54 +1314,46 @@ function Array_print(messages, delay){
 						html_tags+='<span>'+name+'</span><br/><div style="padding-left:45px">'+body[0]+'</div><div class="blog_body" '+display+'>';
 						
 						for ( var j = 1; j<body.length; j++){
+						var stripped_message = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
+						if (stripped_message[0]=='v'){
 							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
 							var videos = regExp_video.exec(body[j].trim());
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
 							var urls = regExp.exec(body[j].trim());
-
 							if (videos != null){
 								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
 								body[j] = body[j].replace("v.", '');							
-
-								video = videos[0].trim();
-								video = video.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/,"");
-								video = video.slice(6);
-								video = video.replace("watch?v=", "embed/");
-								video = video+"?showinfo=0&controls=0&autohide=1";
+								video="https://www.youtube.com/embed/"+videos[1];
+								video = video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
 								html_tags+=body[j]+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+video+'"  frameborder="0" ></iframe></div><br>';
 							}
-							else if (videos == null && urls != null){
-								body[j] = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-								if (body[j][0]=='i' && body[j][1]=='.'){
-									body[j] = body[j].slice(2);
-									html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1]+'" style="vertical-align:middle"></div><br>';
-								}
-								else {
-									var extension = urls[1].substr(urls[1].length-3, 3);
-									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-									body[j] = body[j].replace("i.", '');							
-									body[j] = body[j].replace("a.", '');
-									switch (extension){
-										case "jpeg":
-										case "jpg":
-										case "png":
-										case "gif":
-											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
-											break
-										case "mp3":
-										case "wav":
-											html_tags+=body[j]+'<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
-											break;
-										default:
-											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="images/nohex_file.png" style="vertical-align:middle"><a href="'+urls[1].trim()+'" target="_blank"> FILE </a></div><br>';	
-									}
-								}	
-							}
-							else html_tags+=body[j]+'<br>';	
+							
 						}
-						html_tags+='</div></div>';
-						
-						$("#content-area").append(html_tags);
+						else if(stripped_message[0]=='a' || stripped_message[0]=='i' || stripped_message[0]=='f'  ){
+							var urls = regExp.exec(body[j].trim());
+
+							body[j] = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
+							if (body[j][0]=='i' && body[j][1]=='.' ){
+								body[j] = body[j].slice(2);
+								html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+body[j].trim()+'" style="vertical-align:middle"></div><br>';
+							}
+							else if (body[j][0]=='a' && body[j][1]=='.'){
+								body[j] = body[j].slice(2);
+								html_tags+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+body[j].trim()+'" type="audio/mpeg"></audio></div>';
+							}
+							else {
+								if (urls!=null){
+									var extension = urls[1].substr(urls[1].length-3, 3);
+									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
+
+								}
+							}	
+						}
+						else html_tags+=body[j]+'<br>';	
+					}
+					html_tags+='</div></div>';
+					$("#content-area").prepend(html_tags);
+				
 					break;				
 				case "Mail":
 					var email = message;							
@@ -1028,6 +1399,7 @@ function Array_print(messages, delay){
 						var html_tags = '<div class="mail"><a class="minimize_icon" onClick="openBody(this.parentNode)" style="width: 20px;height: 20px;float: right;cursor:pointer;"><img src="images/minimize.png"></a>';
 						var display = 'style="display:block;"';
 					}
+							
 					var img = new Image();	
 					img.src = profile_image_path;
 					if (img.height != 0) html_tags+='<img class="profile_photo" src="'+profile_image_path+'"><span>'+name+'</span><br><span class="screenname"> \<'+name.toLowerCase()+'@mail.com\></span> <br/><div style="padding-left:45px">'+body[0]+'</div><div class="mail_body" '+display+'>';
@@ -1048,13 +1420,14 @@ function Array_print(messages, delay){
 								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
 								body[j] = body[j].replace("v.", '');							
 								video="https://www.youtube.com/embed/"+videos[1];
-								video = video+"?showinfo=0&controls=0&autohide=1";
+								video = video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
 								html_tags+=body[j]+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+video+'"  frameborder="0" ></iframe></div><br>';
 							}
 							
 						}
 						else if(stripped_message[0]=='a' || stripped_message[0]=='i' || stripped_message[0]=='f'  ){
 							var urls = regExp.exec(body[j].trim());
+
 							body[j] = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
 							if (body[j][0]=='i' && body[j][1]=='.' ){
 								body[j] = body[j].slice(2);
@@ -1067,22 +1440,8 @@ function Array_print(messages, delay){
 							else {
 								if (urls!=null){
 									var extension = urls[1].substr(urls[1].length-3, 3);
-									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-									body[j] = body[j].replace("i.", '');									
-									switch (extension){
-										case "jpeg":
-										case "jpg":
-										case "png":
-										case "gif":
-											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
-											break
-										case "mp3":
-										case "wav":
-											html_tags+=body[j]+'<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
-											break;
-										default:
-											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="images/nohex_file.png" style="vertical-align:middle"><a href="'+urls[1].trim()+'" target="_blank"> FILE </a></div><br>';	
-									}
+									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
+
 								}
 							}	
 						}
@@ -1110,7 +1469,7 @@ function Array_print(messages, delay){
 						video = video.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/,"");
 						video = video.slice(6);
 						video = video.replace("watch?v=", "embed/");
-						video = video+"?showinfo=0&controls=0&autohide=1";
+						video = video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
 						$("#content-area").prepend('<div style="position:relative">'+name+'<iframe style="padding-top:4px;" width="100%" src="'+video+'"  frameborder="0" ></iframe></div>');
 					}
 					else{
@@ -1141,18 +1500,23 @@ function Array_print(messages, delay){
 		}
 		if (messages.length==0){
 			clearInterval(unfolding_interval);
+			still_printing=false;
 			if(delay==0&&type!="Mail"&& type!="Blog" && type!="Microblog"){
 				$("#content-area").animate({scrollTop: $('#content-area').prop("scrollHeight")}, 500);
 			}
 			$('#send-message-area').show();
 		}
-	},delay);		
+	},delay);	
 }
+		
 function select(id,index){
 	message_feed_id = id;
 	selected = true;
+
 	$('#content-area').empty();
 	$('#send-message-area').empty();
+	spinner.spin(target);	
+
 	$.ajax({
 		type: "GET",
 		url: "api.php",
@@ -1162,27 +1526,15 @@ function select(id,index){
 		},
 		dataType: "json",
 		success: function(data){
+			console.log(data);
 			messages_to_array(data);
-			$("#content-area").append('<div id="selected_feed" ><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+feeds_array[index].character_name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="feed_name" >'+feeds_array[index].character_name+'</div><div class="feed_tagline">Available</div></div></div>');
-			$("#content-area").append('<br>');
-			CHARACTER_NAME=feeds_array[index].character_name.toLowerCase();
-			Array_print(messages_array,0);			
-			$.ajax({
-				type: "GET",
-				url: "api.php",
-				data: {  
-					'action': 'new_count_messages',
-					'message_feed_id' : message_feed_id,
-					'type': type,
-				},
-				dataType: "json",
-				success: function(data){
-					message_count=data;
-				},
-				error:function(data){
-				   console.log("ERROR: " + JSON.stringify(data));
-				}
-			});
+			if(feeds_array[index]!==undefined){
+				$("#content-area").append('<div id="selected_feed" ><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+feeds_array[index].character_name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="feed_name" >'+feeds_array[index].character_name+'</div><div class="feed_tagline">Available</div></div></div>');
+				CHARACTER_NAME=feeds_array[index].character_name.toLowerCase();
+			}
+			else CHARACTER_NAME="";
+			Array_print(messages_array,0);
+			spinner.stop();
 		},
 		error: function(data){
 			console.log("ERROR: "+JSON.stringify(data));
@@ -1194,17 +1546,19 @@ function back(){
 	clearInterval(unfolding_interval);
 	messages_id_array = [];
 	selected = false;
-	waitingForAnswer = false;
+	waitingForAnswer=false;
+	still_printing=false;
+	$("#content-area").empty();
+	$("#send-message-area").empty();
+	$("#content-area").height('84%');
+	$("#send-message-area").height('1%');
+	spinner.spin(target);	
 	
 	if (index==-1 || feeds_array.length==1){
+		spinner.stop();
 		window.location.href = 'desktop.php';
 	}
 	else{
-		$("#content-area").empty();
-		$("#send-message-area").empty();
-		$("#content-area").height('84%');
-		$("#send-message-area").height('1%');
-
 		$.ajax({
 			type: "GET",
 			url: "api.php",
@@ -1216,6 +1570,7 @@ function back(){
 			success: function(data){
 				feeds_array = data;
 				message_feeds_to_array(data);
+				spinner.stop();
 			},
 			error:function(data){
 			   console.log("ERROR: " + JSON.stringify(data));
@@ -1227,7 +1582,7 @@ function back(){
 function openBody(element){
 	if(type=="Mail"){
 		if( $(element).find('.mail_body').is(':visible') ) {
-			$("#content-area").animate({scrollTop: 0}, 300);
+			$("#mail-area").animate({scrollTop: 0}, 300);
 			$(element).find('.mail_body').hide("slow");
 			$(element).find('.minimize_icon').find('img').attr("src", "images/maximize.png");
 		}
@@ -1238,31 +1593,34 @@ function openBody(element){
 			$(element).find('.minimize_icon').find('img').attr("src", "images/minimize.png");
 
 			$(element).find('.mail_body').show(200, function() {
-				$("#content-area").animate({scrollTop: $(mail).offset().top-57}, 200);
+				$("#content-area").animate({scrollTop: $(element).offset().top-57}, 200);
 			});
 			var audio = $("#sound3")[0];
 			audio.play();
 		}
-		$(mail).removeClass('bold');	
+		
+		$(element).removeClass('bold');	
 	}
 	else if (type=="Blog"){
 		if( $(element).find('.blog_body').is(':visible') ) {
-			$("#content-area").animate({scrollTop: 0}, 300);
+			$("#blog-area").animate({scrollTop: 0}, 300);
 			$(element).find('.blog_body').hide("slow");
 			$(element).find('.minimize_icon').find('img').attr("src", "images/maximize.png");
 		}
 		else {
 			$(".blog").find('.blog_body').hide();
 			$(".blog").find('.minimize_icon').find('img').attr("src", "images/maximize.png");
+
 			$(element).find('.minimize_icon').find('img').attr("src", "images/minimize.png");
 
 			$(element).find('.blog_body').show(200, function() {
-				$("#content-area").animate({scrollTop: $(mail).offset().top-57}, 200);
+				$("#content-area").animate({scrollTop: $(element).offset().top-57}, 200);
 			});
 			var audio = $("#sound3")[0];
 			audio.play();
 		}
-		$(mail).removeClass('bold');
+		
+		$(element).removeClass('bold');	
 	
-	}			
+	}
 }

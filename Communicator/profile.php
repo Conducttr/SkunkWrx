@@ -97,6 +97,58 @@ else{
 		$profile_image=$data[0]['profile_image'];
 		$roles=$data[0]['roles'];
 	}
+	if(isset($_POST['rotate_photo'])){
+	
+		$filepath="styles/".$project_id."/".$data[0]['profile_image'];
+		$type = exif_imagetype($filepath);
+		//var_dump($type);
+		$allowedTypes = array( 
+				1,  // [] gif 
+				2,  // [] jpg 
+				3,  // [] png 
+				6   // [] bmp 
+		); 
+		if (!in_array($type, $allowedTypes)) { 
+			return false; 
+		} 
+		switch ($type) { 
+			case 1 : 
+				$im = imageCreateFromGif($filepath); 
+			break; 
+			case 2 : 
+				$im = imageCreateFromJpeg($filepath); 
+			break; 
+			case 3 : 
+				$im = imageCreateFromPng($filepath); 
+			break; 
+			case 6 : 
+				$im = imageCreateFromBmp($filepath); 
+			break; 
+		}
+		//print_r($data);
+	  
+
+		// Rotate
+		$degrees = 90;
+		$rotate = imagerotate($im, $degrees, 0);
+
+		switch ($type) { 
+			case 1 : 
+				imagegif($rotate, $filepath,100);
+			break; 
+			case 2 : 
+				imagejpeg($rotate, $filepath,100);
+			break; 
+			case 3 : 
+				imagepng($rotate, $filepath,100);
+			break; 
+			case 6 : 
+				imagebmp($rotate, $filepath,100);
+			break; 
+		}
+		imagedestroy($im);
+		imagedestroy($rotate);	
+	}
 }
 
 ?>
@@ -229,6 +281,7 @@ else{
 							echo "<img id='profile_photo_image' src='styles/".$project_id."/".$profile_image."'>";
 							echo "<input class='profileImage' type='file' id='profileImage' name='profileImage' accept='image/*'/>";
 						echo "</div>";
+						if ($profile_image!="profiles/you.png")echo '<img src="images/rotate_icon.png" style="background-color:white;border-radius:50px;cursor:pointer;position:absolute;right: 25%;z-index: 99px;top: 0;bottom: 0;margin: auto;" onclick="document.getElementById(\'rotate_form\').submit();return false;">';
 
 						echo "<div class='name' >";
 							if($audience_first_name!=""){	
@@ -274,6 +327,9 @@ else{
 							
 
 					</div>
+				</form>
+				<form id="rotate_form"action='profile.php' method='POST'>
+					<input type='hidden' id='rotate_photo' name='rotate_photo' value='1'>
 				</form>
 			</div>
 			<table id="buttons">

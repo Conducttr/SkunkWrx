@@ -19,6 +19,7 @@ else{
 	header('Location: index.php'); 
 }
 ?>
+
 <!doctype html>
 <html lang="en" >
 	<head>
@@ -138,19 +139,20 @@ else{
 								}
 							);
 							setTimeout(function(){ 
-							$({animatedVal: 0}).animate({animatedVal: points}, {
-								duration: 2000,
-								easing: "swing", 
-								step: function() { 
-									$("#points").val(Math.ceil(this.animatedVal)).trigger("change"); 
-								}
-							}); 
+								$({animatedVal: 0}).animate({animatedVal: points}, {
+									duration: 2000,
+									easing: "swing", 
+									step: function() { 
+										$("#points").val(Math.ceil(this.animatedVal)).trigger("change"); 
+									}
+								}); 
 
-						}, 500);
+							}, 500);
 						}
-									 
+				 
 						var progress = data.results[2].progress; 		
-						
+
+							
 						$('#points').trigger(
 							'configure',
 							{

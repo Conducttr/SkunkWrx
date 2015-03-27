@@ -70,6 +70,8 @@ else{
 		
 		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link href="css/main_communicator.css"  rel="stylesheet" type="text/css" />
+
 		<?php 	
 			echo '<link rel="shortcut icon" href="styles/'.$project_id.'/images/favicon.ico" />';
 			echo '<link rel="stylesheet" href="styles/'.$project_id.'/communicator.css" type="text/css" />';
