@@ -37,6 +37,12 @@ var CHARACTER_NAME;
 var count_messages_same_feed  = 0;
 var count_messages_same_type = 0;
 var count_messages_other_types = 0;
+var QUESTION="";
+
+var progressbar_Interval;
+var MESSAGE_NAME;
+var MESSAGE_PROFILE_IMAGE;
+var MESSAGE_POSITION;
 
 $(document).ready(function(){
 	var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
@@ -47,7 +53,7 @@ $(document).ready(function(){
 		var scroller = document.getElementById('content-area');
 		preventOverScroll(scroller);
 	}
-	else question_height=5.5;
+	else question_height=8;
 	
 	/* Push Notifications */
 	/*
@@ -316,6 +322,7 @@ function SendAnswer(matchphrase,index){
 					$('#send-message-area').height("1%");
 					messages_array = [];
 					index_array = [];
+					//console.log(JSON.stringify(data));
 					if(data!=null && type =='mail'){
 						$(".mail").find('.mail_body').hide();
 					}	
@@ -379,7 +386,123 @@ function SendAnswer(matchphrase,index){
 		}
 	});
 }		
+function SendOpenText(matchphrase,index){
+	$("#send-message-area").removeClass("send-message-area-displayed");
+	$("#send-message-area").empty();
+	$("#send-message-area").append('<div id="typing-area"><span id="typing"></span><span id="dot"></span></div>');
+	var loading_text= "Loading ";
+	switch (type){
+		case "Mail": 
+			loading_text="Sending ";
+			break;
+		case "Msngr":
+			loading_text="Typing ";
+			break;
+		default:
+			loading_text= "Loading ";
+	}
 
+	setTimeout(function(){document.getElementById('typing').innerHTML=loading_text;},500);
+	var dot_area = document.getElementById('dot');
+
+	typing_interval = setInterval(function() {
+		if ((dot_area.innerHTML += '.').length == 4) 
+			dot_area.innerHTML = '';
+	}, 500);
+	$.ajax({
+		type: "GET",
+		url: "api.php",
+		data: {  
+			'action': 'send_open_text',
+			'matchphrase' : matchphrase,
+			'question': QUESTION,
+			'character' : CHARACTER_NAME,
+			'type' : type,
+			'index' : index,
+			'message_feed_id':message_feed_id
+
+			},
+		dataType: "json",
+		success: function(data){
+			$.ajax({
+				type: "GET",
+				url: "api.php",
+				data: {  
+					'action': 'refresh_message_feeds',
+					'message_feed_id': message_feed_id
+				},
+				dataType: "json",
+				success: function(data){
+					clearInterval(typing_interval);
+					$('#content-area').height("83%");
+					$('#send-message-area').empty();
+					$('#send-message-area').height("1%");
+					messages_array = [];
+					index_array = [];
+					//console.log(JSON.stringify(data));
+					if(data!=null && type =='mail'){
+						$(".mail").find('.mail_body').hide();
+					}	
+					messages_to_array(data);
+					if(type=="Msngr") Array_print(messages_array,DELAY);	
+					else Array_print(messages_array,3000);	
+					
+					$.ajax({
+						type: "GET",
+						url: "api.php",
+						data: {  
+						'action': 'count_messages',
+						'type': type,
+						'message_feed_id':message_feed_id,
+						},
+						dataType: "json",
+						success: function(data){
+
+							if (data.count_messages_same_type>count_messages_same_type){
+								$('#back').prepend("<div class='dot'></div>");
+								var notification = $('#notification')[0]; 
+								notification.play();    
+								navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+								if (navigator.vibrate) {
+									navigator.vibrate(1000);
+								} 
+							}
+							if (data.count_messages_other_types>count_messages_other_types){
+								$('#home').prepend("<div class='dot'></div>");
+								var notification = $('#notification')[0]; 
+								notification.play();    
+								navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+								if (navigator.vibrate) {
+									navigator.vibrate(1000);
+								}
+							}				
+							count_messages_same_feed=data.count_messages_same_feed;
+							count_messages_same_type=data.count_messages_same_type;
+							count_messages_other_types=data.count_messages_other_types;
+							/* Debug */
+							/*
+							console.log("Update counters by refresh");
+							console.log("same_feed: "+count_messages_same_feed);
+							console.log("same_type: "+count_messages_same_type);
+							console.log("other types: "+count_messages_other_types);
+							*/
+
+						},
+						error:function(data){
+						   console.log("ERROR: " + JSON.stringify(data));
+						}
+					});
+				},
+				error:function(data){
+				   console.log("ERROR: " + JSON.stringify(data));
+				}
+			});
+		},
+		error:function(data){
+			console.log("ERROR: " + JSON.stringify(data));
+		}
+	});
+}	
 function message_feeds_to_array(JSONobject){
 	var message_count = 0;
 	var question_count = 0;
@@ -457,11 +580,17 @@ function messages_to_array(JSONobject){
 					
 					email_questions=[];
 					if(JSONobject[i].question == 1){
-						stream_splitted = stream.split("\n");
+						var stripped_stream = stream.replace(/\<br\s*[\/]?\>/gi, "<br\>\n");
+						stripped_stream = stripped_stream.replace(/\<\/span\>/gi, "\n");
+						stripped_stream = stripped_stream.replace(/\n+/gi, "\n");
+						stream_splitted = stripped_stream.split("\n");
+						
 						body_without_questions= [];
 						for(var k = 0; k < stream_splitted.length; k++){
-							if (stream_splitted[k][0]=="q" && stream_splitted[k][1]=="."){
-								email_questions.push(stream_splitted[k]);
+							stripped_message = stream_splitted[k].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
+
+							if (stripped_message[0]=="q" && stripped_message[1]=="."){
+								email_questions.push(stripped_message);
 							}
 							else{
 								body_without_questions.push(stream_splitted[k]);
@@ -493,16 +622,26 @@ function messages_to_array(JSONobject){
 			}
 			break;
 		default:
+			gate = [];
+			//console.log(JSONobject[i].body);
 			for (var i=0; i<JSONobject.length;i++){
 				if($.inArray(JSONobject[i].id, messages_id_array)==-1){
 					messages_id_array.push(JSONobject[i].id);
 					var unlocked_items =  JSONobject[i].body;
-					var stream = unlocked_items.split("\n");
+					var stream =  unlocked_items.replace(/\t/g, "");
+					var regExp = /g\./;
+					var gates = regExp.exec(stream);
+					stream = stream.split("\n");
 					for(var k = 0; k < stream.length; k++){
 						if(stream[k].length>0 ){
 							messages_array.push(stream[k]);
 							index_array.push(JSONobject[i].id);
 							question_array.push(JSONobject[i].question && JSONobject[i].already_read);
+							if (gates != null){
+								gate.push(stream[k]);
+								gate_index=JSONobject[i].id;
+							}
+
 						}
 					}
 				}
@@ -519,6 +658,10 @@ function Array_print(messages, delay){
 		if (messages.length<=0){
 			clearInterval(unfolding_interval);
 			still_printing=false;
+			if(delay==0&&type!="Mail"&& type!="Blog" && type!="Microblog"){
+				$("#content-area").animate({scrollTop: $('#content-area').prop("scrollHeight")}, 500);
+			}
+			$('#send-message-area').show();
 			return "Done";
 		}
 		if (selected!=true){
@@ -534,6 +677,8 @@ function Array_print(messages, delay){
 	
 		if ((message[0]== "q" || message[0]== "o" || message[0]=="x" || message[0]=="b" || message[0]=="r"  || message[0]=="e")&& message[1]== "." && question!=true){	
 			$('#send-message-area').empty();
+			clearInterval(progressbar_Interval);
+			waitingForAnswer==false;
 		}
 		//Questions - Fixed answers
 		if (message[0]== "q" && message[1]== "." && question!=true){	
@@ -544,13 +689,14 @@ function Array_print(messages, delay){
 			$('#send-message-area').height(number_of_questions+"%");
 			//$("#content-area").append('<div class="message_wrapper"></div>');
 			$("#send-message-area").append('<div class="answer-divider"></div>');
-			//$('#send-message-area').hide();
+			$('#send-message-area').hide();
+			var height_question=86/(questions.length);
 			for(var j= 0; j < questions.length; j++){
 				var regExp = /\[(.*?)\]/;
 				var names = regExp.exec(questions[j]);
 				if (names != null){
 					questions[j] = questions[j].replace(/\[(.*?)\]/g, "");
-					$("#send-message-area").append('<button class="answer" name="'+questions[j].trim()+'" value="'+names[1]+'" onClick="SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+questions[j].trim()+'</button>');
+					$("#send-message-area").append('<button class="answer" name="'+questions[j].trim()+'" style="height:'+height_question+'%"  value="'+names[1]+'" onClick="SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+questions[j].trim()+'</button>');
 					$("#send-message-area").append('<div class="answer-divider"></div>');
 				}
 			}
@@ -563,10 +709,13 @@ function Array_print(messages, delay){
 			var names = regExp.exec(openText);
 			var prompt = "";
 			if (names != null){
-				prompt = names[1];
+				QUESTION = names[1].split(",")[0].trim();
+				prompt = names[1].split(",")[1].trim();
+
 			}
 			$("#send-message-area").addClass("send-message-area-displayed");
-			$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;height:88%;padding-bottom:0px;padding-top: 4px;" ><form id="opentextform"><input id="openTextInput" type="text" placeholder="'+names[1]+' " value="" autofocus  onfocus="this.value = this.value;"><button id="openTextButton" index="'+index+'" ></button></form></div>');
+			//$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;height:88%;padding-bottom:0px;padding-top: 4px;" ><input id="openTextInput" type="text" style="width:85%;height:70%;float:left;padding: 2px;" placeholder="." value="'+names[1]+' " autofocus  onfocus="this.value = this.value;"><button id="openTextButton" index="'+index+'" style="width:10%;height:75%;float:right;"></button></div>');
+			$("#send-message-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center;height:88%;padding-bottom:0px;padding-top: 4px;" ><form id="opentextform"><input id="openTextInput" type="text" placeholder="'+prompt+' " value="" autofocus  onfocus="this.value = this.value;"><button id="openTextButton" index="'+index+'" >></button></form></div>');
 			
 			var form = document.getElementById("opentextform");
 			form.onsubmit = function(){
@@ -575,10 +724,10 @@ function Array_print(messages, delay){
 			};
 			$( "#openTextButton" ).click(function() {
 				var matchphrase = $( "#openTextInput" ).val();
-				matchphrase=matchphrase.replace(names[1],"");
-				matchphrase="opentext:"+names[1]+" "+matchphrase;
+				//matchphrase=matchphrase.replace(names[1],"");
+				//matchphrase="opentext:"+names[1]+" "+matchphrase;
 				var index_from_the_input = $("#openTextButton").attr("index");
-				SendAnswer(matchphrase,index_from_the_input);
+				SendOpenText(matchphrase,index_from_the_input);
 			});
 			input_height=7;
 			$('#content-area').height(84-input_height+"%");
@@ -647,7 +796,9 @@ function Array_print(messages, delay){
 			
 			var regExp = /\[(.*?)\]/;
 			
-			var parameters = regExp.exec(questions[0])[1].split(",");
+			//var parameters = regExp.exec(questions[0])[1].split(",");
+			var parameters = questions[0].split(",");
+			console.log(parameters);
 			var timeout_matchphrase = parameters[0];
 			
 			var time = parameters[1].split(":");
@@ -661,14 +812,14 @@ function Array_print(messages, delay){
 
 			$('#content-area').height(84-number_of_questions+"%");
 			$('#send-message-area').height(number_of_questions+"%");
+			//$("#content-area").append('<div class="message_wrapper"></div>');
 			$("#send-message-area").append('<div class="answer-divider"></div>');
-			$('#send-message-area').hide();
+			//$('#send-message-area').hide();
 			for(var j= 1; j < questions.length; j++){
-				
 				var names = regExp.exec(questions[j]);
 				if (names != null){
 					questions[j] = questions[j].replace(/\[(.*?)\]/g, "");
-					$("#send-message-area").append('<button class="answer" name="'+questions[j].trim()+'" value="'+names[1]+'" onClick="SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+questions[j].trim()+'</button>');
+					$("#send-message-area").append('<button class="answer" name="'+questions[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(progressbar_Interval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+questions[j].trim()+'</button>');
 					$("#send-message-area").append('<div class="answer-divider"></div>');
 					
 				}
@@ -676,15 +827,27 @@ function Array_print(messages, delay){
 			$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
 			var count=0;
 			var bar_width=0;
-			reactionInterval = setInterval(function() {
+			progressbar_Interval = setInterval(function() {
 				bar_width = 100 -((count*100)/seconds);
 				console.log(bar_width);
 				$("#bar").width(bar_width+"%");
-				document.getElementById("progressbar_text").innerHTML = seconds-count;	
+				
+				//document.getElementById("progressbar_text").innerHTML = seconds-count;
+
+				var seconds_remaining = seconds-count; 
+				var hours = Math.floor(seconds_remaining / (60 * 60));
+				var divisor_for_minutes = seconds_remaining % (60 * 60);
+				var minutes = Math.floor(divisor_for_minutes / 60);
+				var divisor_for_seconds = divisor_for_minutes % 60;
+				var secs = Math.ceil(divisor_for_seconds);
+				if (hours < 10) {hours = "0"+hours;}
+				if (minutes < 10) {minutes = "0"+minutes;}
+				if (secs < 10) {secs = "0"+secs;}
+				document.getElementById("progressbar_text").innerHTML = hours+":"+minutes+":"+secs;	
 				if(count>=seconds || bar_width<=0){
 					console.log("Finished");
-					clearInterval(reaction_interval);
-					SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+					clearInterval(progressbar_Interval);
+					SendAnswer(timeout_matchphrase,index);
 				}	
 				else count++;
 			},1000);
@@ -704,11 +867,13 @@ function Array_print(messages, delay){
 			}
 		
 			var ending_time = parameters[1];
-			var ending_time = regExp.exec(ending_time);
+			//var ending_time = regExp.exec(ending_time);
 			if (ending_time != null){
-				timeout_matchphrase = ending_time[1].split(",")[0];
+				//timeout_matchphrase = ending_time[1].split(",")[0];
+				timeout_matchphrase = ending_time.split(",")[0];
 				
-				var time = ending_time[1].split(",")[1].split(":");
+				//var time = ending_time[1].split(",")[1].split(":");
+				var time = ending_time.split(",")[1].split(":");
 				var ending_time_seconds = 0;
 				var multiplier= 1;
 				for (var t=time.length-1; t>=0;t--){
@@ -730,6 +895,8 @@ function Array_print(messages, delay){
 			var count  = right_now-starting_time_seconds;
 			var remaining =ending_time_seconds-right_now;
 
+			
+			//if(true){
 			if((remaining>0)&&(count<ending_time_seconds)){
 				//Questions
 				var number_of_questions = question_height*(parameters.length-1);
@@ -741,12 +908,12 @@ function Array_print(messages, delay){
 					var names = regExp.exec(parameters[j]);
 					if (names != null){
 						parameters[j] = parameters[j].replace(/\[(.*?)\]/g, "");
-						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(votingInterval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
+						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(progressbar_Interval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
 						$("#send-message-area").append('<div class="answer-divider"></div>');
 					}
 				}
 				$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
-				votingInterval = setInterval(function() {			
+				progressbar_Interval = setInterval(function() {			
 					bar_width = (count*100)/voting_period;
 					$("#bar").width(bar_width+"%");
 					var seconds_remaining = voting_period-count; 
@@ -759,12 +926,16 @@ function Array_print(messages, delay){
 					if (minutes < 10) {minutes = "0"+minutes;}
 					if (secs < 10) {secs = "0"+secs;}
 					document.getElementById("progressbar_text").innerHTML = hours+":"+minutes+":"+secs;	
-					if(count>=ending_time_seconds || bar_width<=0){
-						clearInterval(votingInterval);
-						SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+					if(count>=ending_time_seconds || bar_width>=100){
+						clearInterval(progressbar_Interval);
+						SendAnswer(timeout_matchphrase,index);
 					}	
 					else count++;
 				},1000);
+			}
+			else{
+				SendAnswer("",index);
+				
 			}
 		}
 		// Question with expiration date
@@ -778,14 +949,26 @@ function Array_print(messages, delay){
 			if (starting_time != null){
 				starting_time_seconds = starting_time[1];
 			}
-		
+			console.log(starting_time_seconds);
+
 			var ending_time = parameters[1];
-			var ending_time = regExp.exec(ending_time);
+			//var ending_time = regExp.exec(ending_time);
 			if (ending_time != null){
-				timeout_matchphrase = ending_time[1].split(",")[0];
-				ending_time_seconds = ending_time[1].split(",")[1];
-				ending_time_seconds = Date.parse(ending_time_seconds).getTime()/1000
+				//timeout_matchphrase = ending_time[1].split(",")[0];
+				timeout_matchphrase = ending_time.split(",")[0];
+				//ending_time_seconds = ending_time[1].split(",")[1];
+				ending_time_seconds = ending_time.split(",")[1];
+				
+				console.log(ending_time_seconds.trim());
+				console.log(Date.parse(ending_time_seconds.trim()));
+				console.log(Date.parse(ending_time_seconds.trim()).getTime());
+				ending_time_seconds = Date.parse(ending_time_seconds.trim()).getTime()/1000;
+				
+
 			}
+			
+			console.log(starting_time_seconds);
+			console.log(ending_time_seconds);
 			voting_period = ending_time_seconds-starting_time_seconds;
 			var right_now  = Math.round(+new Date()/1000);
 			var count  = right_now-starting_time_seconds;
@@ -803,12 +986,12 @@ function Array_print(messages, delay){
 					var names = regExp.exec(parameters[j]);
 					if (names != null){
 						parameters[j] = parameters[j].replace(/\[(.*?)\]/g, "");
-						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(votingInterval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
+						$("#send-message-area").append('<button class="answer" name="'+parameters[j].trim()+'" value="'+names[1]+'" onClick="clearInterval(progressbar_Interval);SendAnswer(\''+names[1].trim()+'\',\''+index+'\');" index="'+index+'">'+parameters[j].trim()+'</button>');
 						$("#send-message-area").append('<div class="answer-divider"></div>');
 					}
 				}
 				$("#send-message-area").append('<div id="progressbar"><div id="progressbar_text"></div><div id="bar"></div></div>');
-				votingInterval = setInterval(function() {			
+				progressbar_Interval = setInterval(function() {			
 					bar_width = (count*100)/voting_period;
 					$("#bar").width(bar_width+"%");
 					var seconds_remaining = voting_period-count; 
@@ -821,127 +1004,61 @@ function Array_print(messages, delay){
 					if (minutes < 10) {minutes = "0"+minutes;}
 					if (secs < 10) {secs = "0"+secs;}
 					document.getElementById("progressbar_text").innerHTML = hours+":"+minutes+":"+secs;	
-					if(count>=ending_time_seconds || bar_width<=0){
-						clearInterval(votingInterval);
-						SendAnswer('\''+timeout_matchphrase+'\'','\''+index+'\'');
+					if(count>=ending_time_seconds || bar_width>=100){
+						clearInterval(progressbar_Interval);
+						SendAnswer(timeout_matchphrase,index);
 					}	
 					else count++;
 				},1000);
 			}
+			else{
+				//SendAnswer("",index);
+			}
 		}
 		else{
+			
+			set_name(message); 
+			//message = message.replace(/\[(.*?)\]/g, "");
+			message = message.replace(/\[(.*?)\]/, "");
+			
+			var message_type = message[0];
+			if(type!="Blog" || type!="Mail" || type !="media") message = message.slice(2);
 			switch (type){
 				//GoSocial - Fakebook //		
 				case 'GoSocial':
-					switch (message[0]){
+					switch (message_type){
 						//Post
 						case "t":
 						case "p":
-							var post = message.slice(2);							
-							var regExp = /\[(.*?)\]/;							
-							var names = regExp.exec(post);
-							var name = "";
-							if (names != null){
-								post = post.replace(/\[(.*?)\]/g, "");
-								if (names[1] ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	name = 'You';
-									else
-										var	name = AUDIENCE_FIRST_NAME;
-								}
-								else{
-									name=names[1];
-								}
-							}
-							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
-							var images = regExp.exec(post);
-							if (images != null){
-								post = post.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, "");
-								$("#content-area").append('<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>'+post+'<br/ ><img src="'+images[1]+'"></div>');
-							}
-							else{
-								$("#content-area").append('<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>'+post+'</div>');
-							}
-							break;
-						
-						//Post with Image
 						case "i":
-							var post = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(post);
-							var names = regExp.exec(post);
-							var name = "";
-							if (names != null){
-								post = post.replace(/\[(.*?)\]/g, "");
-								if (names[1] ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	name = 'You';
-									else
-										var	name = AUDIENCE_FIRST_NAME;
-								}
-								else{
-									name=names[1];
-								}
-							}
-
-							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
-							var images = regExp.exec(post);
-							if (images != null){
-								post = post.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, "");
-								$("#content-area").append('<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>'+post+'<br/ ><img src="'+images[1]+'"></div>');
-							}
-							else{
-								$("#content-area").append('<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>'+post+'</div>');
-							}
-							break;
-						//Audio	
-						case "a":
-							audio = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(audio);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								audio = audio.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									html_message='<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'"><span>'+AUDIENCE_FIRST_NAME+'</span><br/>';
-								}
-								else html_message='<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>';
-							}
+							var html_message='<div class="gosocial_post"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><br/>';
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
 							var urls = regExp.exec(message);
 							if (urls != null){
-								audio = audio.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								html_message+=audio+'<br><br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div></div>';										
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
+								html_message+=message+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><a href="'+urls[1]+'" data-lightbox="'+urls[1]+'" data-title="'+message+'"><image src="'+urls[1]+'" style="vertical-align:middle"></a></div><br>';										
 							}
-							else html_message+=audio+'</div></div>';
+							else html_message+=message+'</div></div>';
+							$("#content-area").append(html_message);
+							
+							break;
+						//Audio	
+						case "a":
+							var html_message='<div class="gosocial_post"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><br/>';
+							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
+							var urls = regExp.exec(message);
+							if (urls != null){
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
+								html_message+=message+'<br><br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div></div>';										
+							}
+							else html_message+=message+'</div></div>';
 							$("#content-area").append(html_message);
 							break;	
 						//Video
-						case "v":
-							
-							video = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(video);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								video = video.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									html_message='<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'"><span>'+AUDIENCE_FIRST_NAME+'</span><br/>';
-								}
-								else html_message='<div class="gosocial_post"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><br/>';
-							}
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-							var videos = regExp_video.exec(video);
-							if (videos != null){
-								video = video.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
-								video = video.trim();
-								html_video = "https://www.youtube.com/embed/"+videos[1];
-								html_video = html_video+"?showinfo=0&controls=0&autohide=1";
-								html_message+=video+'<br><br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+html_video+'"  frameborder="0" ></iframe></div></div></div>';										
-							}
-							else html_message+=video+'</div></div>';
+						case "v":							
+							var html_message='<div class="gosocial_post"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><br/>';
+							html_message+=video_container(message);
+							html_message+='</div></div>';
 							$("#content-area").append(html_message);
 							break;	
 							
@@ -1005,262 +1122,91 @@ function Array_print(messages, delay){
 					break;
 					// MicroBlog - Tuiter //
 				case 'Microblog':
-					switch (message[0]){
+					switch (message_type){
 						//Tweet only text
 						case "p":
 						case "t":
 						case "c":
-							var tuit = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(tuit);
-							var name = "";
-							if (names != null){
-								tuit = tuit.replace(/\[(.*?)\]/g, "");
-								if (names[1] ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	name = 'You';
-									else
-										var	name = AUDIENCE_FIRST_NAME;
-								}
-								else{
-									name=names[1];
-								}
-							}
-							$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><span class="screenname"> @'+name+'</span><div class="tuit_content">'+tuit+'</div></div>');
+							$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><span class="screenname"> @'+MESSAGE_NAME+'</span><div class="tuit_content">'+message+'</div></div>');
 							break;
 						//Tweet with image	
 						case "i":
-							var tuit = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(tuit);
-							if (names != null){
-								tuit = tuit.replace(/\[(.*?)\]/g, "");
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-							} 
-							else var name =""; 
-							
+							var html_message = '<div class="tuit"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><span class="screenname"> @'+MESSAGE_NAME+'</span><div class="tuit_content">';
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/;
-							var images = regExp.exec(tuit);
-							
+							var images = regExp.exec(message);
 							if (images != null){
-								tuit = tuit.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');
-								$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><span class="screenname"> @'+name+'</span> <div class="tuit_content">'+tuit+'<br/ ><img src="'+images[1]+'"></div></div>');
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');
+								html_message+=message+'<br/><img src="'+images[1]+'"></div></div>';
 							}
 							else{ 
-								$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><span class="screenname"> @'+name+'</span><div class="tuit_content">'+tuit+'</div></div>');
+								html_message+=message+'</div></div>';
 							}
+							$("#content-area").prepend(html_message);
+
 							break;
 						//Audio	
 						case "a":
-							audio = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(audio);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								audio = audio.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									html_message='<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'"><span>'+AUDIENCE_FIRST_NAME+'</span><span class="screenname"> @'+name+'</span><br/><div class="tuit_content">';
-								}
-								else html_message='<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+name+'</span><span class="screenname"> @'+name+'</span><br/><div class="tuit_content">';
-							}
+							var html_message = '<div class="tuit"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><span class="screenname"> @'+MESSAGE_NAME+'</span><div class="tuit_content">';
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
 							var urls = regExp.exec(message);
 							if (urls != null){
-								audio = audio.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								html_message+=audio+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div></div>';										
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
+								html_message+=message+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div></div>';										
 							}
-							else html_message+=audio+'</div></div>';
+							else html_message+=message+'</div></div>';
 							$("#content-area").prepend(html_message);
 							break;	
 						case "v":
-							var tuit = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(tuit);
-							if (names != null){
-								tuit = tuit.replace(/\[(.*?)\]/g, "");
-							} 
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-
-							var videos = regExp_video.exec(tuit);
-							if (videos != null){
-								tuit = tuit.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
-								var video = "https://www.youtube.com/embed/"+videos[1].trim();
-								video = video+"?showinfo=0&controls=0&autohide=1";							
-								$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+names[1].toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+names[1]+'</span><span class="screenname"> @'+names[1]+'</span> <div class="tuit_content">'+tuit+'<br/><div class="video_container"><iframe style="padding-top:4px;" width="100%" src="'+video+'"  frameborder="0" ></div></div></div>');
-							}
-							else{ 
-								$("#content-area").prepend('<div class="tuit"><img class="profile_photo" src="styles/'+PROJECT_ID+'/images/'+names[1].toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><span>'+names[1]+'</span><span class="screenname"> @'+names[1]+'</span><div class="tuit_content">'+tuit+'</div></div>');
-							}
+							var html_message = '<div class="tuit"><img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><span>'+MESSAGE_NAME+'</span><span class="screenname"> @'+MESSAGE_NAME+'</span><div class="tuit_content">';
+							html_message+=video_container(message);
+							html_message+='</div></div>';
+							$("#content-area").prepend(html_message);
 							break;
-						
 						}
 					break;
 
 				//Msngr - WhatsUp //
 				case "Msngr":
-					switch (message[0]){
+					switch (message_type){
 						//Conversation
 						case "p":
 						case "t":
-						case "c":
-							var message = message.slice(2);							
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(message);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								message = message.replace(/\[(.*?)\]/g, "");
-							}
-							else var name = "";	
-							var message_content = '<div class="message_wrapper" ><img class="profile_photo"  src="';
-							
-							if (name ==  "You") {
-
-								var POSITION = 'right';
-								var IMAGE = 'styles/'+PROJECT_ID+'/'+PROFILE_IMAGE;
-								if (AUDIENCE_FIRST_NAME =='')
-									var	NAME = 'You';
-								else
-									var	NAME = AUDIENCE_FIRST_NAME;
-							}
-							else if (name ==  "") {
-								var POSITION = 'left';
-								var IMAGE = '';
-								var	NAME = name;
-							}
-							else{
-								var POSITION = 'left';
-								var IMAGE = 'styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png';
-								var	NAME = name;
-							}
-							
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-							message = message.trim();
-							var videos = regExp_video.exec(message);
-							if (videos != null){
-								message = message.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
-								var video = "https://www.youtube.com/embed/"+videos[1];
-								video = video+"?showinfo=0&controls=0&autohide=1";
-								message+='<br><iframe style="padding-top:4px;" width="100%" src="'+video+'"  frameborder="0" ></iframe>';
-							}
-							else{
-								var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
-								var urls = regExp.exec(message);
-								if (urls != null){
-
-									var extension = urls[1].substr(urls[1].length-3, 3);
-									message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-									switch (extension){
-										case "jpeg":
-										case "png":
-										case "gif":
-											message+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1]+'" style="vertical-align:middle"><span> '+name+'  </span></div><br>';
-											break
-										case "mp3":
-										case "wav":
-											message+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'" type="audio/mpeg"></audio></div>';
-											break;
-										default:
-											message+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><a href="'+urls[1]+'" target="_blank">'+urls[1]+'</a></div><br>';	
-									}
-								}
-							}	 
-							$("#content-area").append('<div class="message_wrapper" ><div class="message_content  '+POSITION+'" ><img class="profile_photo" src="'+IMAGE+'" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="message_'+POSITION+'"><span>'+NAME+'</span><br/>'+message+'</div></div></div>');
-
-						break;		
+						case "c":							
+							$("#content-area").append('<div class="message_wrapper" ><div class="message_content  '+MESSAGE_POSITION+'" ><img class="profile_photo" style="float:'+MESSAGE_POSITION+';" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><div class="message_'+MESSAGE_POSITION+'"><span>'+MESSAGE_NAME+'</span><br/>'+message+'</div></div></div>');
+							break;		
 						//Image	
 						case "i":
-							image = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(image);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								image = image.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	NAME = 'You';
-									else
-										var	NAME = AUDIENCE_FIRST_NAME;
-									html_message='<div class="message_wrapper"><img class="profile_photo" style="float:right;" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'" onerror="if (this.src != \'styles/'+PROJECT_ID+'/profiles/you.png\') this.src = \'styles/'+PROJECT_ID+'/profiles/you.png\';"><div class="message_right image"><span>'+NAME+'</span><br/>';
-								}
-								else{
-									
-									html_message='<div class="message_wrapper"><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="message_left image"><span>'+name+'</span><br/>';
-								}
-							}
+							var html_message='<div class="message_wrapper"><div class="message_content  '+MESSAGE_POSITION+'" ><img class="profile_photo" style="float:'+MESSAGE_POSITION+';" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><div class="message_'+MESSAGE_POSITION+' image"><span>'+MESSAGE_NAME+'</span><br/>';
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
 							var urls = regExp.exec(message);
 							if (urls != null){
-								image = image.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								html_message+=image+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><a href="'+urls[1]+'" data-lightbox="'+urls[1]+'" data-title="'+image+'"><image src="'+urls[1]+'" style="vertical-align:middle"></a></div><br>';										
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
+								html_message+=message+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><a href="'+urls[1]+'" data-lightbox="'+urls[1]+'" data-title="'+message+'"><image src="'+urls[1]+'" style="vertical-align:middle"></a></div><br>';										
 							}
-							else html_message+=image+'</div></div>';
+							else html_message+=message+'</div></div>';
 							$("#content-area").append(html_message);
 							break;
 						//Audio	
 						case "a":
-							audio = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(audio);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								audio = audio.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	NAME = 'You';
-									else
-										var	NAME = AUDIENCE_FIRST_NAME;
-									html_message='<div class="message_wrapper"><img class="profile_photo" style="float:right;" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'" onerror="if (this.src != \'styles/'+PROJECT_ID+'/profiles/you.png\') this.src = \'styles/'+PROJECT_ID+'/profiles/you.png\';"><div class="message_right audio"><span>'+NAME+'</span><br/>';
-								}
-								else html_message='<div class="message_wrapper"><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="message_left audio"><span>'+name+'</span><br/>';
-							}
+							var html_message='<div class="message_wrapper"><div class="message_content '+MESSAGE_POSITION+'" ><img class="profile_photo" style="float:'+MESSAGE_POSITION+';" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><div class="message_'+MESSAGE_POSITION+' audio"><span>'+MESSAGE_NAME+'</span><br/>';
 							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
 							var urls = regExp.exec(message);
 							if (urls != null){
-								audio = audio.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								html_message+=audio+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div><br>';										
+								message = message.replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
+								html_message+=message+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><audio controls style="max-width: 100%;"><source src="'+urls[1]+'"></audio></div><br>';										
 							}
 							else html_message+=audio+'</div></div>';
 							$("#content-area").append(html_message);
 							break;	
 						//Video
 						case "v":
-							
-							video = message.slice(2);							
-							var html_message = '';
-							var regExp = /\[(.*?)\]/;
-							var names = regExp.exec(video);
-							if (names != null){
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								video = video.replace(/\[(.*?)\]/g, "");
-								if (name ==  "You") {
-									if (AUDIENCE_FIRST_NAME =='')
-										var	NAME = 'You';
-									else
-										var	NAME = AUDIENCE_FIRST_NAME;
-									html_message='<div class="message_wrapper"><img class="profile_photo" style="float:right;" src="styles/'+PROJECT_ID+'/'+PROFILE_IMAGE+'" onerror="if (this.src != \'styles/'+PROJECT_ID+'/profiles/you.png\') this.src = \'styles/'+PROJECT_ID+'/profiles/you.png\';"><div class="message_right video"><span>'+NAME+'</span><br/>';
-								}
-								else html_message='<div class="message_wrapper"><img class="profile_photo" style="float:left;" src="styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png" onerror="if (this.src != \'styles/'+PROJECT_ID+'/images/default.png\') this.src = \'styles/'+PROJECT_ID+'/images/default.png\';"><div class="message_left video"><span>'+name+'</span><br/>';
-							}
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-							var videos = regExp_video.exec(video);
-							if (videos != null){
-								video = video.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
-								video = video.trim();
-								var html_video = "https://www.youtube.com/embed/"+videos[1];
-								html_video = html_video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
-								html_message+=video+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" src="'+html_video+'"  frameborder="0" ></iframe></div></div></div>';										
-							}
-							else html_message+=video+'</div></div>';
+							var html_message='<div class="message_wrapper"><div class="message_content '+MESSAGE_POSITION+'" ><img class="profile_photo" style="float:'+MESSAGE_POSITION+';" src="'+MESSAGE_PROFILE_IMAGE+'" onerror="if (this.src != \''+MESSAGE_DEFAULT_IMAGE+'\') this.src = \''+MESSAGE_DEFAULT_IMAGE+'\';"><div class="message_'+MESSAGE_POSITION+' video"><span>'+MESSAGE_NAME+'</span><br/>';
+							html_message+=video_container(message);
+							html_message+='</div></div>';
 							$("#content-area").append(html_message);
 							break;
 						//Date	
-						case "d":
-						
-							var date = message.slice(2);
-							
+						case "d":	
 							var m_names = new Array("January", "February", "March", 
 							"April", "May", "June", "July", "August", "September", 
 							"October", "November", "December");
@@ -1269,84 +1215,77 @@ function Array_print(messages, delay){
 							var curr_month = d.getMonth();
 							var curr_year = d.getFullYear();
 							today = curr_date + " " + m_names[curr_month] + " " + curr_year;
-							date = date.replace("|today|", today);							
+							message = message.replace("|today|", today);							
 
-							$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center"><div class="date>"'+date+'</div></div>');
+							$("#content-area").append('<div class="message_wrapper" style="font-weight:bold;text-align:center"><div class="date">'+message+'</div></div>');
 							break;	
-								
-						
 						}
 						
 					break;	
 				case "Blog":
-					var email = message;							
 					var regExp = /\[(.*?)\]/;
-					var names = regExp.exec(email);
-					if (names != null){
-						email = email.replace(/\[(.*?)\]/g, "");
-						if ( names[1] == "You" || names[1] == "you"  ){
-							 var name = AUDIENCE_FIRST_NAME;
-								var profile_image_path = PROFILE_IMAGE;
-						}
-							else {
-								var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
-								var profile_image_path = 'images/'+name.toLowerCase().replace(/ /g,'')+'.png';
-							}
-						} 
-						else var name = "";
-						
-						body = email.replace(/\<br\s*[\/]?\>/gi, "<br\>\n");
-						body = email.replace(/\<\/span\>/gi, "\n");
-
-						body = body.replace(/\n+/gi, "\n");
-						body = body.split("\n");
 					
-						if (count_index==1){
-
-								var html_tags = '<div class="blog" ><a class="minimize_icon" onClick="openBody(this.parentNode)" style="width: 20px;height: 20px;float: right;cursor:pointer;"><img src="images/minimize.png"></a>';
-								var display = 'style="display:block;"';
-						}
-						else{
-							var html_tags = '<div class="blog bold" ><a class="minimize_icon" onClick="openBody(this.parentNode)" style="width: 20px;height: 20px;float: right;cursor:pointer;"><img src="images/maximize.png"></a>';
-							var display = '';
-						}
-							
-						html_tags+='<span>'+name+'</span><br/><div style="padding-left:45px">'+body[0]+'</div><div class="blog_body" '+display+'>';
 						
-						for ( var j = 1; j<body.length; j++){
-						var stripped_message = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-						if (stripped_message[0]=='v'){
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-							var videos = regExp_video.exec(body[j].trim());
-							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
-							var urls = regExp.exec(body[j].trim());
-							if (videos != null){
-								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								body[j] = body[j].replace("v.", '');							
-								video="https://www.youtube.com/embed/"+videos[1];
-								video = video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
-								html_tags+=body[j]+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+video+'"  frameborder="0" ></iframe></div><br>';
-							}
+					body = message.replace(/\<br\s*[\/]?\>/gi, "<br\>\n");
+					body = body.replace(/\<\/span\>/gi, "\n");
+
+					body = body.replace(/\n+/gi, "\n");
+					body = body.split("\n");
+					
+					if (count_index==1){
+
+						var html_tags = '<div class="blog" ><a class="minimize_icon" onClick="openBody(this.parentNode)" style="width: 20px;height: 20px;float: right;cursor:pointer;"><img src="images/minimize.png"></a>';
+						var display = 'style="display:block;"';
+					}
+					else{
+						var html_tags = '<div class="blog bold" ><a class="minimize_icon" onClick="openBody(this.parentNode)" style="width: 20px;height: 20px;float: right;cursor:pointer;"><img src="images/maximize.png"></a>';
+						var display = '';
+					}
 							
+					//html_tags+='<span>'+name+'</span><br/><div style="padding-left:45px">'+body[0]+'</div><div class="blog_body" '+display+'>';
+					html_tags+='<span>'+MESSAGE_NAME+'</span><br/><div>'+body[0]+'</div><div class="blog_body" '+display+'>';
+					var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
+	
+					for ( var j = 1; j<body.length; j++){
+						var urls = regExp.exec(body[j].trim());
+
+						var stripped_message = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
+						if (stripped_message[0]=='v' && stripped_message[1]=='.'){
+							html_tags+=video_container(stripped_message.slice(2))+"<br>";					
 						}
-						else if(stripped_message[0]=='a' || stripped_message[0]=='i' || stripped_message[0]=='f'  ){
-							var urls = regExp.exec(body[j].trim());
+						else if(stripped_message[0]=='a' && stripped_message[1]=='.'){ 
+							html_tags+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
+						}
+						else if(stripped_message[0]=='i' && stripped_message[1]=='.'){ 
+							html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
+						}
+						else if( stripped_message[0]=='f' && stripped_message[1]=='.'){ 
 
-							body[j] = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-							if (body[j][0]=='i' && body[j][1]=='.' ){
-								body[j] = body[j].slice(2);
-								html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+body[j].trim()+'" style="vertical-align:middle"></div><br>';
-							}
-							else if (body[j][0]=='a' && body[j][1]=='.'){
-								body[j] = body[j].slice(2);
-								html_tags+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+body[j].trim()+'" type="audio/mpeg"></audio></div>';
-							}
-							else {
-								if (urls!=null){
-									var extension = urls[1].substr(urls[1].length-3, 3);
-									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
+							if (urls!=null){
+								var extension = urls[1].substr(urls[1].length-3, 3);
+								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
 
-								}
+									/*
+									
+									body[j] = body[j].replace("i.", '');
+									//console.log(extension);
+									
+									switch (extension){
+										case "jpeg":
+										case "jpg":
+										case "png":
+										case "gif":
+											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
+											break
+										case "mp3":
+										case "wav":
+											html_tags+=body[j]+'<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
+											break;
+										default:
+											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="images/nohex_file.png" style="vertical-align:middle"><a href="'+urls[1].trim()+'" target="_blank"> FILE </a></div><br>';	
+									}
+									*/
+								
 							}	
 						}
 						else html_tags+=body[j]+'<br>';	
@@ -1356,27 +1295,9 @@ function Array_print(messages, delay){
 				
 					break;				
 				case "Mail":
-					var email = message;							
-					var regExp = /\[(.*?)\]/;
-					var names = regExp.exec(email);
-					if (names != null){
-						email = email.replace(/\[(.*?)\]/g, "");
-						if ( names[1] == "You" || names[1] == "you"  ){
-							 var name = AUDIENCE_FIRST_NAME;
-								var profile_image_path = PROFILE_IMAGE;
-						}
-						else {
-							var name =  names[1].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-
-							name = name.charAt(0).toUpperCase() + name.slice(1);
-							var profile_image_path = '/styles/'+PROJECT_ID+'/images/'+name.toLowerCase().trim()+'.png';
-						}
-					} 
-					else var name = "";
-						
-					body = email.replace(/\<br\s*[\/]?\>/gi, "<br\>\n");
-					body = email.replace(/\<\/span\>/gi, "\n");
-
+					var regExp = /\[(.*?)\]/;		
+					body = message.replace(/\<br\s*[\/]?\>/gi, "<br\>\n");
+					body = body.replace(/\<\/span\>/gi, "\n");
 					body = body.replace(/\n+/gi, "\n");
 					body = body.split("\n");
 
@@ -1401,48 +1322,58 @@ function Array_print(messages, delay){
 					}
 							
 					var img = new Image();	
-					img.src = profile_image_path;
-					if (img.height != 0) html_tags+='<img class="profile_photo" src="'+profile_image_path+'"><span>'+name+'</span><br><span class="screenname"> \<'+name.toLowerCase()+'@mail.com\></span> <br/><div style="padding-left:45px">'+body[0]+'</div><div class="mail_body" '+display+'>';
+					img.src = MESSAGE_PROFILE_IMAGE;
+					//console.log(profile_image_path);
+					//console.log(img.height);
+
+					if (img.height != 0) html_tags+='<img class="profile_photo" src="'+MESSAGE_PROFILE_IMAGE+'"><span>'+MESSAGE_NAME+'</span><br><span class="screenname"> \<'+MESSAGE_NAME.toLowerCase()+'@mail.com\></span> <br/><div style="padding-left:45px">'+body[0]+'</div><div class="mail_body" '+display+'>';
 					else{
-						for (var i = 0, hash = 0; i < name.length; hash = name.charCodeAt(i++) + ((hash << 5) - hash));
+						for (var i = 0, hash = 0; i < MESSAGE_NAME.length; hash = MESSAGE_NAME.charCodeAt(i++) + ((hash << 5) - hash));
 						for (var i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
-						html_tags+='<div class="profile_photo" style="font-family:Roboto;position:relative;background-color:'+colour+'";><div style="color:white;position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width: 80%;height: 80%;font-size: 25px;text-align: center;font-weight:normal;">'+name[0]+'</div></div><span>'+name+'</span><br/><div style="padding-left:45px">'+body[0]+'</div><div class="mail_body" '+display+'>';
+						html_tags+='<div class="profile_photo" style="font-family:Roboto;position:relative;background-color:'+colour+'";><div style="color:white;position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;width: 80%;height: 80%;font-size: 25px;text-align: center;font-weight:normal;">'+MESSAGE_NAME[0]+'</div></div><span>'+MESSAGE_NAME+'</span><br/><div style="padding-left:45px">'+MESSAGE_NAME+'</div><div class="mail_body" '+display+'>';
 					}
-						
+					var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
+	
 					for ( var j = 1; j<body.length; j++){
+						var urls = regExp.exec(body[j].trim());
+
 						var stripped_message = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-						if (stripped_message[0]=='v'){
-							var regExp_video = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
-							var videos = regExp_video.exec(body[j].trim());
-							var regExp = /(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g;
-							var urls = regExp.exec(body[j].trim());
-							if (videos != null){
-								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '');							
-								body[j] = body[j].replace("v.", '');							
-								video="https://www.youtube.com/embed/"+videos[1];
-								video = video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
-								html_tags+=body[j]+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+video+'"  frameborder="0" ></iframe></div><br>';
-							}
-							
+						if (stripped_message[0]=='v' && stripped_message[1]=='.'){
+							html_tags+=video_container(stripped_message.slice(2))+"<br>";					
 						}
-						else if(stripped_message[0]=='a' || stripped_message[0]=='i' || stripped_message[0]=='f'  ){
-							var urls = regExp.exec(body[j].trim());
+						else if(stripped_message[0]=='a' && stripped_message[1]=='.'){ 
+							html_tags+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
+						}
+						else if(stripped_message[0]=='i' && stripped_message[1]=='.'){ 
+							html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
+						}
+						else if( stripped_message[0]=='f' && stripped_message[1]=='.'){ 
 
-							body[j] = body[j].replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/g,"");
-							if (body[j][0]=='i' && body[j][1]=='.' ){
-								body[j] = body[j].slice(2);
-								html_tags+='<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+body[j].trim()+'" style="vertical-align:middle"></div><br>';
-							}
-							else if (body[j][0]=='a' && body[j][1]=='.'){
-								body[j] = body[j].slice(2);
-								html_tags+='<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+body[j].trim()+'" type="audio/mpeg"></audio></div>';
-							}
-							else {
-								if (urls!=null){
-									var extension = urls[1].substr(urls[1].length-3, 3);
-									body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
+							if (urls!=null){
+								var extension = urls[1].substr(urls[1].length-3, 3);
+								body[j] = body[j].replace(/(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/g, '<a href="'+urls[1]+'">"'+urls[1]+'"</a>');							
 
-								}
+									/*
+									
+									body[j] = body[j].replace("i.", '');
+									//console.log(extension);
+									
+									switch (extension){
+										case "jpeg":
+										case "jpg":
+										case "png":
+										case "gif":
+											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="'+urls[1].trim()+'" style="vertical-align:middle"></div><br>';
+											break
+										case "mp3":
+										case "wav":
+											html_tags+=body[j]+'<br><div class="sound"><audio controls style="max-width: 100%;"><source src="'+urls[1].trim()+'" type="audio/mpeg"></audio></div>';
+											break;
+										default:
+											html_tags+=body[j]+'<br><div style="font-weight:bold;text-align:center;margin-top:10px;position:relative;"><image src="images/nohex_file.png" style="vertical-align:middle"><a href="'+urls[1].trim()+'" target="_blank"> FILE </a></div><br>';	
+									}
+									*/
+								
 							}	
 						}
 						else html_tags+=body[j]+'<br>';	
@@ -1492,12 +1423,13 @@ function Array_print(messages, delay){
 					}
 
 					break;
-				}	
-			}
+			}	
+		}
 		if(delay>0 && type!="Mail" && type!="Blog" && type!='Microblog' ){
 			$("#content-area").animate({scrollTop: $('#content-area').prop("scrollHeight")}, 500);
 			$('#send-message-area').show();
 		}
+		/*
 		if (messages.length==0){
 			clearInterval(unfolding_interval);
 			still_printing=false;
@@ -1506,9 +1438,9 @@ function Array_print(messages, delay){
 			}
 			$('#send-message-area').show();
 		}
+		*/
 	},delay);	
 }
-		
 function select(id,index){
 	message_feed_id = id;
 	selected = true;
@@ -1622,5 +1554,63 @@ function openBody(element){
 		
 		$(element).removeClass('bold');	
 	
+	}
+}
+function video_container(url){
+	var regExp_Youtubevideo = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g;
+	var youtube_videos = regExp_Youtubevideo.exec(url);
+	var regExp_VimeoVideo = /(?:https?:\/\/)?(?:www\.)?vimeo.com\/(\d+)($|\/)/;
+	var vimeo_videos = regExp_VimeoVideo.exec(url);
+
+	if (youtube_videos != null){
+		var message = url.replace(/(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/g, '');							
+
+		var html_video = "https://www.youtube.com/embed/"+youtube_videos[1];
+		html_video = html_video+"?showinfo=0&controls=0&autohide=1&rel=0&modestbranding=0";
+		
+		if(type!="GoSocial") return message+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+html_video+'"  frameborder="0" ></iframe></div>';										
+		else return message+'<br><br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+html_video+'"  frameborder="0" ></iframe></div>';										
+
+	}
+	else if(vimeo_videos!=null){
+		var message = url.replace(/(?:https?:\/\/)?(?:www\.)?vimeo.com\/(\d+)($|\/)/,'');
+		var html_video = "https://player.vimeo.com/video/"+vimeo_videos[1];
+		if(type!="GoSocial") return message+'<br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+html_video+'"  frameborder="0" ></iframe></div>';										
+		else return message+'<br><br><div class="video_container"><iframe style="padding-top:4px;" width="100%" height="100%" src="'+html_video+'"  frameborder="0" ></iframe></div>';										
+	}
+	else return url;
+}
+
+function set_name(message){
+	var regExp = /\[(.*?)\]/;
+	var names = regExp.exec(message);
+	if (names != null){
+		var name = names[1].charAt(0).toUpperCase() + names[1].slice(1);
+	}
+	else var name = "";	
+	
+	if (name ==  "You") {
+		MESSAGE_POSITION = 'right';
+		MESSAGE_PROFILE_IMAGE = 'styles/'+PROJECT_ID+'/'+PROFILE_IMAGE;
+		MESSAGE_DEFAULT_IMAGE = 'styles/'+PROJECT_ID+'/profiles/default.png';
+
+		if (AUDIENCE_FIRST_NAME =='')
+			MESSAGE_NAME = 'You';
+		else
+			MESSAGE_NAME = AUDIENCE_FIRST_NAME;
+	}
+	else if (name ==  "") {
+		MESSAGE_POSITION = 'left';
+		MESSAGE_PROFILE_IMAGE = '';
+		MESSAGE_DEFAULT_IMAGE = 'styles/'+PROJECT_ID+'/images/default.png';
+
+		MESSAGE_NAME = name;
+	}
+	else{
+		MESSAGE_POSITION = 'left';
+		MESSAGE_PROFILE_IMAGE = 'styles/'+PROJECT_ID+'/images/'+name.toLowerCase()+'.png';
+		MESSAGE_DEFAULT_IMAGE = 'styles/'+PROJECT_ID+'/images/default.png';
+		
+		MESSAGE_NAME = name;
 	}
 }

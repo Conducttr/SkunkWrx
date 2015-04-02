@@ -192,8 +192,27 @@ position: relative; height: 600px; width: 360px; overflow: auto; margin:auto;bor
 	min-height:45px;
 }
 #sendie                         { width: 80%; height:100%; margin:auto;  font: 12px "Lucida Grande", Sans-Serif; }
-.answer							{ width: 80%; position:relative;display:block; margin-left:auto; margin-right:auto; padding-top:5px; padding-bottom:5px;background: none;color: black;border: 0;}
-.answer:hover 					{ background-color: #254242; opacity:0.6}
+.answer	{ 
+	width: 80%; 
+	position:relative;
+	display:block; 
+	margin-left:auto; 
+	margin-right:auto; 
+	padding-top:5px; 
+	padding-bottom:5px;
+	background: none;
+	/*color: black;*/
+	color: #254242;
+	border: 0;
+	font-weight:bold;
+	background-color: rgba(37, 66, 66, 0.15);
+
+}
+.answer:hover {
+	 background-color: #254242; 
+	/* opacity:0.6*/
+	color:white;
+ }
 .answer-divider 				{ width: 80%; position: relative; margin:auto auto; height:1px;background:#254242;border-bottom:1px solid #254242;}
 #typing-area					{ width: 15%; /* position: absolute;left: 45%;*/text-align:left; color:#254242; font-weight:bold ; }
 
@@ -254,7 +273,10 @@ position: relative; height: 600px; width: 360px; overflow: auto; margin:auto;bor
     -webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	-o-border-radius:  2px;   
+	/*
 	padding: 8px 8px;
+	*/
+	padding: 6px 6px;
     float: left;   
     position: relative;
 	border-color: #cdecb0; 
@@ -303,7 +325,11 @@ position: relative; height: 600px; width: 360px; overflow: auto; margin:auto;bor
     -webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	-o-border-radius:  2px;
-    padding: 8px 8px;
+	/*
+	padding: 8px 8px;
+	*/
+	padding: 6px 6px;
+	
     position: relative;
 	border-color: #cdecb0;
 	float: right;
@@ -1158,6 +1184,28 @@ margin: auto;
 	width:30px; 
 	height:30px;
 	z-index:1;
+}
+
+#opentextform{
+	width:100%;
+	height: 80%;
+}
+#openTextInput{
+	width: 85%;
+	height: 80%;
+	padding-top:2px;
+	padding-bottom:2px;
+	padding-left:4px;
+	
+	float: left;
+}
+#openTextButton{
+	width:10%;
+	float:right;
+	  height: 100%;
+}
+li{
+	list-style:none;
 }
 
 ´
