@@ -43,6 +43,7 @@ var progressbar_Interval;
 var MESSAGE_NAME;
 var MESSAGE_PROFILE_IMAGE;
 var MESSAGE_POSITION;
+var waitingForAnswer;
 
 $(document).ready(function(){
 	var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
@@ -678,7 +679,7 @@ function Array_print(messages, delay){
 		if ((message[0]== "q" || message[0]== "o" || message[0]=="x" || message[0]=="b" || message[0]=="r"  || message[0]=="e")&& message[1]== "." && question!=true){	
 			$('#send-message-area').empty();
 			clearInterval(progressbar_Interval);
-			waitingForAnswer==false;
+			waitingForAnswer=false;
 		}
 		//Questions - Fixed answers
 		if (message[0]== "q" && message[1]== "." && question!=true){	
