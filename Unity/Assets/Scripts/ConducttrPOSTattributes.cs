@@ -24,18 +24,18 @@ public class ConducttrPOSTattributes : MonoBehaviour {
 		audience_email = GUI.TextField ( new Rect (90, 0, 200, 30), audience_email,25 ); 
 		
 		attribute1 = GUI.TextField ( new Rect (90, 30, 100, 20), attribute1,25 ); 
-		attribute1 = GUI.TextField ( new Rect (90, 50, 100, 20), attribute2,25 ); 
-		attribute1 = GUI.TextField ( new Rect (90, 70, 100, 20), attribute3,25 ); 
+		attribute2 = GUI.TextField ( new Rect (90, 50, 100, 20), attribute2,25 ); 
+		attribute3 = GUI.TextField ( new Rect (90, 70, 100, 20), attribute3,25 ); 
 
 
 
 		if ( GUI.Button ( new Rect (90, 130, 200, 100) , "Set Attributes" ) ){ //just a button
-			setAttributes(audience_email,analSexSelected,askHIVSelected,completedSexActs,avatarHealth,communityHealth,condoms,attempts,avatarRisk,partnerRisk,avatarName,partnerName);
+			setAttributes(audience_email,attribute1,attribute2,attribute3);
 			
 		}
 		if (Event.current.keyCode == KeyCode.Return) {
 			
-			setAttributes(audience_email,analSexSelected,askHIVSelected,completedSexActs,avatarHealth,communityHealth,condoms,attempts,avatarRisk,partnerRisk,avatarName,partnerName);
+			setAttributes(audience_email,attribute1,attribute2,attribute3);
 		}
 	}
 	
@@ -65,7 +65,7 @@ public class ConducttrPOSTattributes : MonoBehaviour {
 		}    
 	}
 	
-	public void setAttributes(string audience_email, string analSexSelected, string askHIVSelected, string completedSexActs, string avatarHealth, string communityHealth, string condoms, string attempts, string avatarRisk, string partnerRisk, string avatarName, string partnerName){
+	public void setAttributes(string attribute1, string attribute2, string attribute3){
 		try{
 			//ServicePointManager.ServerCertificateValidationCallback =ValidateServerCertficate;
 			System.Net.ServicePointManager.ServerCertificateValidationCallback += (s,ce,ca,p) => true;
